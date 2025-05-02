@@ -4,3 +4,172 @@
 
 #include "collision.h"
 
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NO_OF_COLLISIONS 3
+typedef bool (*CollisionFunc)(Shape* a, Shape* b);
+
+static CollisionFunc dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS];
+
+
+
+
+
+/**
+ * This function handles rectangle on rectangle object collisions
+ *
+ * It uses Axis Aligned Bounding Boxes to decide the collisions
+ *
+ * @param first_shape The first shape being compared
+ * @param second_shape the second shape being compared
+ *
+ * @return true if a collision has occurred, and false if it hasn't
+ *
+ ***/
+extern bool aabb_collision(Shape* first_shape, Shape* second_shape) {
+    return (first_shape->rect.position.x < second_shape->rect.position.x + second_shape->rect.width &&
+            first_shape->rect.position.x + first_shape->rect.width > second_shape->rect.position.x &&
+            first_shape->rect.position.y < second_shape->rect.position.y + second_shape->rect.height &&
+            first_shape->rect.position.y + first_shape->rect.height > second_shape->rect.position.y);
+}
+
+
+/**
+ * This function handles circle on circle object collisions
+
+ *
+ * @param first_shape The first shape being compared
+ * @param second_shape the second shape being compared
+ *
+ * @return true if a collision has occurred, and false if it hasn't
+ *
+ ***/
+extern bool circle_collision(Shape* first_shape, Shape* second_shape) {
+
+  float distance_sqr = vector_dist_sqr(first_shape->circle.position,second_shape->circle.position);
+
+  float radius_sum = first_shape->circle.radius + second_shape->circle.radius;
+
+  if (distance_sqr <= (radius_sum*radius_sum)) {
+   return true;
+  }
+  else {
+   return false;
+  }
+}
+
+/**
+ * This function handles circle on rectangle object collisions
+ *
+ *@link https://www.gamedevelopment.blog/collision-detection-circles-rectangles-and-polygons/ (Read to understand the logic)
+ *@link https://www.jeffreythompson.org/collision-detection/circle-rect.php (Read to understand the logic)
+ *
+ * @param first_shape The first shape being compared
+ * @param second_shape the second shape being compared
+ *
+ * @return true if a collision has occurred, and false if it hasn't
+ *
+ ***/
+extern bool circle_aabb_collision(Shape* first_shape, Shape* second_shape) {
+
+ // determine which one is the circle and which one is the rectangle.
+
+ // make sure they don't have the same collisions
+ if (first_shape->collision_type == second_shape->collision_type) {
+  fprintf(stderr, "Warning: Circle on AABB Collision function, passed shapes of same collision type.\n Please ensure the two shapes are not the same type.\n");
+  return false;
+ }
+
+ Circle circle;
+ Rectangle rect;
+
+ if (first_shape->collision_type == CIRCLE_COLLISION) {
+   circle = first_shape->circle;
+   rect = second_shape->rect;
+ }
+ else if (second_shape->collision_type == CIRCLE_COLLISION) {
+  circle = second_shape->circle;
+  rect = first_shape->rect;
+ }
+ else {
+  return false;
+ }
+
+
+ // check for collision
+
+ float rect_min_x = rect.position.x;
+ float rect_max_x = rect.position.x + rect.width;
+
+ float rect_min_y = rect.position.y;
+ float rect_max_y = rect.position.y + rect.height;
+
+
+ float rec_closest_x = fminf(fmaxf(rect_min_x,circle.position.x),rect_max_x);
+ float rec_closest_y = fminf(fmaxf(rect_min_y,circle.position.y),rect_max_y);
+
+ Vector_2D point = {rec_closest_x,rec_closest_y};
+
+ float distance_sqr = vector_dist_sqr(point,circle.position);
+
+
+ if (distance_sqr <= (circle.radius*circle.radius)) {
+  return true;
+ }
+ else {
+  return false;
+ }
+}
+
+
+extern void initialise_dispatch() {
+
+ for (int i = 0; i < NO_OF_COLLISIONS; ++i) {
+  for (int j = 0; j < NO_OF_COLLISIONS; ++j) {
+
+   dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS] = NULL;
+
+  }
+ }
+
+ // Initializing the dispatch table based on the collision types
+ dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
+ dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
+ dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
+ dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
+
+
+}
+
+
+
+/***
+ * This is the main dispatch function for handling collisions in the engine
+ * The system makes use of a 2d dispatch table for handling which methods are called,
+ * based on which of the 2 shapes are colliding.
+ *
+ *  The dispatch table, stores the function potions in a 2D array.
+ *
+ * @param first_shape The first shape being compared
+ * @param second_shape the second shape being compared
+ *
+ * @return true if a collision has occurred, and false if it hasn't
+ *
+ */
+
+extern bool is_colliding (Shape* first_shape , Shape* second_shape) {
+
+ CollisionFunc func = dispatch_table[first_shape->collision_type][second_shape->collision_type];
+
+ if (func) {
+  return func(first_shape,second_shape);
+ }
+ else {
+  fprintf(stderr, "Unsupported collision type combination\n");
+  return false;
+ }
+
+
+}

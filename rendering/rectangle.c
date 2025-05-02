@@ -16,16 +16,9 @@ void sdl_from_rect(Rectangle* rectangle, SDL_FRect* dest_rect) {
     dest_rect->h = rectangle->height;
 }
 
-Rectangle* new_rectangle(Collision_Type collision_type, float x,float y,float width,float height,SDL_Color color) {
+Rectangle* new_rectangle(float x,float y,float width,float height,SDL_Color color) {
 
     Rectangle* new_rect  =  calloc(1,sizeof(Rectangle));
-
-    if (collision_type == NONE) {
-        new_rect->has_collider = false;
-    }
-    else {
-        new_rect->has_collider = true;
-    }
 
     new_rect->position.x = x;
     new_rect->position.y = y;

@@ -4,20 +4,16 @@
 
 #ifndef COLLISION_H
 #define COLLISION_H
+#include <stdbool.h>
+#include "rendering/shape.h"
 
-typedef enum {
-    NONE,
-    CIRCLE_COLLISION,
-    AABB_COLLISION
 
-} Collision_Type;
 
-typedef struct {
-    Collision_Type type;
-    union {
 
-    };
+extern void initialise_dispatch();
 
-}Collider;
+extern bool is_colliding (Shape* first_shape , Shape* second_shape);
+
+extern bool aabb_collision(Shape* first_shape , Shape* second_shape);
 
 #endif //COLLISION_H
