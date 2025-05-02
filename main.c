@@ -1,4 +1,5 @@
 
+#include <math.h>
 #include <stdio.h>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -15,11 +16,80 @@ typedef struct {
   float x, y, w, h;
 } AABB;
 
-  bool aabb_collision(Rectangle* a, Rectangle* b) {
+bool aabb_collision(Rectangle* a, Rectangle* b) {
   return (a->position.x < b->position.x + b->width &&
           a->position.x + a->width > b->position.x &&
           a->position.y < b->position.y + b->height &&
           a->position.y + a->height > b->position.y);
+}
+
+
+void render_circle_bresenham(SDL_Renderer *renderer, int cx, int cy, int radius,bool is_fill) {
+  int x = radius;
+  int y = 0;
+  int d = 3 - 2 * radius;
+
+  while (x >= y) {
+    SDL_RenderPoint(renderer, cx + x, cy + y);
+    SDL_RenderPoint(renderer, cx - x, cy + y);
+    SDL_RenderPoint(renderer, cx + x, cy - y);
+    SDL_RenderPoint(renderer, cx - x, cy - y);
+    SDL_RenderPoint(renderer, cx + y, cy + x);
+    SDL_RenderPoint(renderer, cx - y, cy + x);
+    SDL_RenderPoint(renderer, cx + y, cy - x);
+    SDL_RenderPoint(renderer, cx - y, cy - x);
+
+    if (is_fill) {
+
+      SDL_RenderLine(renderer,cx + x,cy + y,cx - x,cy + y);
+      SDL_RenderLine(renderer,cx + x,cy - y,cx - x,cy - y);
+      SDL_RenderLine(renderer,cx + y,cy + x,cx - y,cy + x);
+      SDL_RenderLine(renderer,cx + y,cy - x,cx - y,cy - x);
+
+    }
+
+    if (d < 0) {
+      d = d + (2 * (3 + 2*y) );
+    } else {
+      d = d + (2 * (5 - 2*x + 2*y));
+      x--;
+    }
+    y++;
+
+
+  }
+}
+
+
+void render_circle_mid_point(SDL_Renderer *renderer, int cx, int cy, int radius) {
+  int x = 0;
+  int y = -radius;
+  int d = -radius + 0.25;
+
+  while (x < -y) {
+
+    if (d > 0) {
+      y++;
+      d = d + (2 * (x + y) + 1 );
+    } else {
+      d = d + 2 * x + 1;
+
+    }
+
+    SDL_RenderPoint(renderer, cx + x, cy + y);
+    SDL_RenderPoint(renderer, cx - x, cy + y);
+    SDL_RenderPoint(renderer, cx + x, cy - y);
+    SDL_RenderPoint(renderer, cx - x, cy - y);
+    SDL_RenderPoint(renderer, cx + y, cy + x);
+    SDL_RenderPoint(renderer, cx - y, cy + x);
+    SDL_RenderPoint(renderer, cx + y, cy - x);
+    SDL_RenderPoint(renderer, cx - y, cy - x);
+
+
+
+
+    x++;
+  }
 }
 
 
@@ -90,6 +160,9 @@ int main(int argc , char** argv){
     }
     render_rect(moving_box,renderer,NULL);
 
+    render_circle_mid_point(renderer,500,500,400);
+    SDL_SetRenderDrawColor(renderer,RED.r,RED.g,RED.b,RED.a);
+    render_circle_bresenham(renderer,500,500,400,false);
 
 
     SDL_RenderPresent(renderer);
