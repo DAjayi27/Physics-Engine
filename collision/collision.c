@@ -29,6 +29,12 @@ static CollisionFunc dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS];
  *
  ***/
 extern bool aabb_collision(Shape* first_shape, Shape* second_shape) {
+
+   if (first_shape->collision_type != AABB_COLLISION || second_shape->collision_type != AABB_COLLISION) {
+    fprintf(stderr, "Non rectangle collider shape passed to rectangle on rectangle collider");
+    return false;
+   }
+
     return (first_shape->rect.position.x < second_shape->rect.position.x + second_shape->rect.width &&
             first_shape->rect.position.x + first_shape->rect.width > second_shape->rect.position.x &&
             first_shape->rect.position.y < second_shape->rect.position.y + second_shape->rect.height &&
@@ -47,6 +53,13 @@ extern bool aabb_collision(Shape* first_shape, Shape* second_shape) {
  *
  ***/
 extern bool circle_collision(Shape* first_shape, Shape* second_shape) {
+
+  // Check for proper types
+
+  if (first_shape->collision_type != CIRCLE_COLLISION || second_shape->collision_type != CIRCLE_COLLISION) {
+   fprintf(stderr, "Non circle collider shape passed to circle on circle collider");
+   return false;
+  }
 
   float distance_sqr = vector_dist_sqr(first_shape->circle.position,second_shape->circle.position);
 
@@ -79,6 +92,14 @@ extern bool circle_aabb_collision(Shape* first_shape, Shape* second_shape) {
  // make sure they don't have the same collisions
  if (first_shape->collision_type == second_shape->collision_type) {
   fprintf(stderr, "Warning: Circle on AABB Collision function, passed shapes of same collision type.\n Please ensure the two shapes are not the same type.\n");
+  return false;
+ }
+
+
+ if ((first_shape->collision_type != AABB_COLLISION && first_shape ->collision_type != CIRCLE_COLLISION)  ||
+  (second_shape->collision_type != AABB_COLLISION && second_shape->collision_type != CIRCLE_COLLISION)
+ ) {
+  fprintf(stderr, "Non rectangle or circle shape passed to rectangle on circle collider");
   return false;
  }
 

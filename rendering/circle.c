@@ -112,3 +112,7 @@ extern void render_circle_mid_point(Circle* circle,SDL_Renderer *renderer, bool 
         x++;
     }
 }
+
+
+
+
