@@ -6,6 +6,8 @@
 #include <SDL3/SDL_main.h>
 
 #include "collision/collision.h"
+#include "physics/physics_component.h"
+#include "physics/rigid_body.h"
 #include "rendering/rectangle.h"
 #include "rendering/shape.h"
 
@@ -50,8 +52,24 @@ int main(int argc , char** argv){
 
   SDL_CreateWindowAndRenderer("Physics Engine",1000,1000,0,&window,&renderer);
 
-  Shape moving_box = create_circle(200,250,100,RED,true);
-  Shape static_box = create_rect(100,100,100,100,WHITE,true);
+    Shape moving_box = create_circle(200,250,100,GREEN,true);
+  Shape moving_box2 = create_circle(400,250,100,RED,true);
+  Rigid_Body body = {
+    .velocity = {0, 0},
+    .acceleration = {0, 0},  // if you want persistent acceleration
+    .mass = 50.0f,
+  };
+  Rigid_Body body2 = {
+    .velocity = {0, 0},
+    .acceleration = {0, 0},  // if you want persistent acceleration
+    .mass = 10.0f,
+  };
+
+  Physics_Component comp = {.type = PHYSICS_RIGID_BODY , .rigid_body = body };
+  Physics_Component comp2 = {.type = PHYSICS_RIGID_BODY , .rigid_body = body2 };
+
+  Entity entity = {&moving_box, &comp};
+  Entity entity2 = {&moving_box2, &comp2};
 
   bool running = true;
   SDL_Event e;
@@ -63,28 +81,20 @@ int main(int argc , char** argv){
       }
     }
 
-    handle_input(&moving_box);
+    // handle_input(&moving_box);
 
-    bool collided = is_colliding(&moving_box, &static_box);
+    // bool collided = is_colliding(&moving_box, &static_box);
 
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);  // Dark background
     SDL_RenderClear(renderer);
 
-    // Draw static box in white
-    render_rect(&static_box.rect,renderer,NULL);
+    update_physics(&entity,(1/60.0f));
+    update_physics(&entity2,(1/60.0f));
 
-    // Draw moving box - red if colliding, green otherwise
-    if (collided) {
-      moving_box.circle.color = RED;  // Red
-    } else {
-      moving_box.circle.color = GREEN;  // Green
-    }
-    render_circle_bresenham(&moving_box.circle,renderer,true);
-
-
-    // // render_circle_mid_point(renderer,500,500,400,true);
-    // render_circle_bresenham(renderer,500,500,400,false);
+    SDL_SetRenderDrawColor(renderer,RED.r,RED.g,RED.b,RED.a);
+    render_circle_bresenham(entity.shape,renderer,true);
+    render_circle_bresenham(entity2.shape,renderer,true);
 
 
     SDL_RenderPresent(renderer);

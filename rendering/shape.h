@@ -19,10 +19,12 @@ struct Shape {
         Circle circle;
         Rectangle rect;
     };
+    Vector_2D position;
 };
 
 
 extern Shape create_circle(float x,float y ,float radius,SDL_Color color,bool has_collision);
 extern Shape create_rect(float x,float ,float width,float height,SDL_Color color,bool has_collision);
+extern float get_area(Shape* shape);
 
 #endif //SHAPE_H

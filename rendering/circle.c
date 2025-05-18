@@ -6,6 +6,8 @@
 
 #include <stdlib.h>
 
+#include "shape.h"
+
 
 extern Circle* new_circle(float x,float y ,float radius,SDL_Color color) {
 
@@ -24,8 +26,11 @@ extern Circle* new_circle(float x,float y ,float radius,SDL_Color color) {
 }
 
 
-extern void render_circle_bresenham(Circle* circle,SDL_Renderer *renderer, bool is_fill) {
+extern void render_circle_bresenham(Shape* shape,SDL_Renderer *renderer, bool is_fill) {
 
+    Circle* circle = &shape->circle;
+
+    circle->position = shape->position;
 
     SDL_SetRenderDrawColor(renderer,circle->color.r,circle->color.g,circle->color.b,circle->color.a);
 

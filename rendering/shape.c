@@ -4,6 +4,8 @@
 
 #include "shape.h"
 
+#include <math.h>
+
 extern Shape create_circle(float x,float y ,float radius,SDL_Color color,bool has_collision) {
     Shape new_circle;
 
@@ -22,6 +24,8 @@ extern Shape create_circle(float x,float y ,float radius,SDL_Color color,bool ha
     new_circle.circle.color = color;
 
     new_circle.circle.radius = radius;
+
+    new_circle.position = new_circle.circle.position;
 
     return new_circle;
 
@@ -46,10 +50,23 @@ extern Shape create_rect(float x,float y ,float width,float height,SDL_Color col
 
     new_rect.rect.color = color;
 
+    new_rect.position = new_rect.rect.position;
+
     new_rect.rect.width = width;
     new_rect.rect.height = height;
 
     return new_rect;
+}
+
+extern float get_area(Shape* shape) {
+
+    switch (shape->collision_type) {
+
+    case CIRCLE_COLLISION:
+        return M_PI * (shape->circle.radius*shape->circle.radius);
+
+    }
+
 
 
 }

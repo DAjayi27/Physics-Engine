@@ -4,8 +4,25 @@
 
 #include "vector.h"
 
-float vector_add(Vector_2D point_a , Vector_2D point_b) {
+extern Vector_2D vector_add(Vector_2D point_a , Vector_2D point_b) {
 
+    Vector_2D result;
+
+    result.x = point_a.x + point_b.x;
+    result.y = point_a.y + point_b.y;
+
+    return result;
+}
+
+
+extern Vector_2D vector_scale(Vector_2D point_a , float scale) {
+
+    Vector_2D result;
+
+    result.x = point_a.x * scale;
+    result.y = point_a.y * scale;
+
+    return result;
 }
 
 Vector_2D vector_sub(Vector_2D point_a , Vector_2D point_b) {
