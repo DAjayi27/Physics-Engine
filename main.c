@@ -106,11 +106,11 @@ int main(int argc , char** argv){
 
     SDL_SetRenderDrawColor(renderer,RED.r,RED.g,RED.b,RED.a);
     render_circle_bresenham(entity.shape,renderer,true);
-    render_circle_bresenham(entity2.shape,renderer,true);
+    // render_circle_bresenham(entity2.shape,renderer,true);
 
 
     SDL_RenderPresent(renderer);
-    SDL_Delay(16); // ~60 FPS
+
   }
 
   SDL_DestroyRenderer(renderer);
