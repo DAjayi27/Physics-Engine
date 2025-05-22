@@ -2,11 +2,12 @@
 // Created by AJYDAN on 02/05/2025.
 //
 
-#include "circle.h"
+
 
 #include <stdlib.h>
 
 #include "shape.h"
+#include "core/entity.h"
 
 
 extern Circle* new_circle(float x,float y ,float radius,SDL_Color color) {

@@ -28,6 +28,6 @@ struct Physics_Component{
     };
 } ;
 
-extern void update_physics(Entity* shape, float dt);
+extern void update_gravity_physics(Entity* shape, float dt);
 
 #endif //PHYSICS_COMPONENT_H

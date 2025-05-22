@@ -43,6 +43,8 @@ void handle_input(Shape* moving_box) {
 
 int main(int argc , char** argv){
 
+
+
   initialise_dispatch();
 
   initialize_sdl();
@@ -50,7 +52,9 @@ int main(int argc , char** argv){
   SDL_Window* window ;
   SDL_Renderer *  renderer;
 
-  SDL_CreateWindowAndRenderer("Physics Engine",1000,1000,0,&window,&renderer);
+  SDL_CreateWindowAndRenderer("Physics Engine",0,0,SDL_WINDOW_FULLSCREEN,&window,&renderer);
+  SDL_SetRenderVSync(renderer,SDL_RENDERER_VSYNC_ADAPTIVE);
+
 
     Shape moving_box = create_circle(200,250,100,GREEN,true);
   Shape moving_box2 = create_circle(400,250,100,RED,true);
@@ -74,7 +78,15 @@ int main(int argc , char** argv){
   bool running = true;
   SDL_Event e;
 
+  uint64_t lastTime = SDL_GetPerformanceCounter();
+
   while (running) {
+
+    uint64_t currentTime = SDL_GetPerformanceCounter();
+    float deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
+    lastTime = currentTime;
+
+
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_EVENT_QUIT) {
         running = false;
@@ -89,8 +101,8 @@ int main(int argc , char** argv){
     SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);  // Dark background
     SDL_RenderClear(renderer);
 
-    update_physics(&entity,(1/60.0f));
-    update_physics(&entity2,(1/60.0f));
+    update_gravity_physics(&entity,deltaTime);
+    // update_gravity_physics(&entity2,deltaTime);
 
     SDL_SetRenderDrawColor(renderer,RED.r,RED.g,RED.b,RED.a);
     render_circle_bresenham(entity.shape,renderer,true);

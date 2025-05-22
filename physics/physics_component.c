@@ -7,8 +7,48 @@
 #include <math.h>
 #include <stdio.h>
 
+/**
+ *
+ * At each frame, drag or gravity physics for each object is being updated.
+ * It uses simple drag physics to preform frame time calculations.
+ * read (https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/drageq.html) or
+ * watch (https://www.youtube.com/watch?v=ZgqJ5wQF944&ab_channel=Debunked) for more info
+ *
+ * @param shape the shape or entity being updated
+ * @param dt id the frame update time (time delay between each drawn frame)
+ *
+ * NOTE: there is a conversion btw px and meters at a rate of 100px = 1m
+ *
+ ***/
+void handle_rigid_body_gravity(Entity* shape, float dt, Rigid_Body* rb) {
+    float velocity_y = rb->velocity.y;
+    float area = get_area(shape->shape);
 
-extern void update_physics(Entity* shape, float dt) {
+    // Air drag: F_drag = -0.5 * ρ * A * v * |v|
+    float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y)*0.47;
+
+    // Gravity
+    float gravitational_force = rb->mass * 9.8;
+
+    // Net force
+    float total_force = drag_force + gravitational_force;
+
+    // Acceleration = F / m
+    float actual_acceleration = total_force / rb->mass;
+
+    // Position update: Δx = v₀ * dt + 0.5 * a * dt²
+    float new_position_offset = rb->velocity.y * dt + 0.5f * actual_acceleration * dt * dt;
+
+    // Velocity update: v = v₀ + a * dt
+    rb->velocity.y += actual_acceleration * dt;
+
+    Vector_2D new = {0, new_position_offset*100};
+
+    shape->shape->position = vector_add(shape->shape->position, new);
+}
+
+
+extern void update_gravity_physics(Entity* shape, float dt) {
     if (!shape->physics) return;
 
     switch (shape->physics->type) {
@@ -17,35 +57,10 @@ extern void update_physics(Entity* shape, float dt) {
             Rigid_Body* rb = &shape->physics->rigid_body;
 
             if (rb->is_static) return;
+            handle_rigid_body_gravity(shape, dt, rb);
 
-
-            float velocity_y = rb->velocity.y;
-            float area = get_area(shape->shape);
-
-            // Air drag: F_drag = -0.5 * ρ * A * v * |v|
-            float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y)*0.47;
-
-            // Gravity
-            float gravitational_force = rb->mass * 9.81;
-
-            // Net force
-            float total_force = drag_force + gravitational_force;
-
-            // Acceleration = F / m
-            float actual_acceleration = total_force / rb->mass;
-
-            // Position update: Δx = v₀ * dt + 0.5 * a * dt²
-            float new_position_offset = rb->velocity.y * dt + 0.5f * actual_acceleration * dt * dt;
-
-            // Velocity update: v = v₀ + a * dt
-            rb->velocity.y += actual_acceleration * dt;
-
-            Vector_2D new = {0, new_position_offset};
-            shape->shape->position = vector_add(shape->shape->position, new);
-            printf("v=%.2f drag=%.2f gravity=%.2f accel=%.2f\n",
-            rb->velocity.y, drag_force, gravitational_force, actual_acceleration);
-
-
+            // printf("v=%.2f drag=%.2f gravity=%.2f accel=%.2f\n",
+            // // rb->velocity.y, drag_force, gravitational_force, actual_acceleration);
         break;
 
 
@@ -62,3 +77,5 @@ extern void update_physics(Entity* shape, float dt) {
             break;
     }
 }
+
+

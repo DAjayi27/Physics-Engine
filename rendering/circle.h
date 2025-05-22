@@ -8,6 +8,7 @@
 typedef struct Circle Circle;
 #include <SDL3/SDL_pixels.h>
 #include "core/vector.h"
+#include "circle.h"
 
 
 

@@ -58,12 +58,17 @@ extern Shape create_rect(float x,float y ,float width,float height,SDL_Color col
     return new_rect;
 }
 
+/**
+ *
+ * @param shape The shape being calculated
+ * @return the area of the shape in meters (100 px = 1m)
+ */
 extern float get_area(Shape* shape) {
 
     switch (shape->collision_type) {
 
     case CIRCLE_COLLISION:
-        return M_PI * (shape->circle.radius*shape->circle.radius);
+        return M_PI * ((shape->circle.radius/100)*(shape->circle.radius/100));
 
     }
 
