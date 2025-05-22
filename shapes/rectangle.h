@@ -22,6 +22,6 @@ struct Rectangle {
 
 // extern bool destroy_rect(Rectangle* rectangle);
 
-extern bool render_rect(Rectangle* rectangle , SDL_Renderer* renderer,SDL_Texture* texture);
+
 
 #endif //RECTANGLE_H

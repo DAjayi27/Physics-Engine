@@ -6,10 +6,12 @@
 #include <SDL3/SDL_main.h>
 
 #include "collision/collision.h"
+#include "core/entity.h"
+#include "physics/physics.h"
 #include "physics/physics_component.h"
 #include "physics/rigid_body.h"
-#include "rendering/rectangle.h"
-#include "rendering/shape.h"
+#include "rendering/shape_renderer.h"
+#include "shapes/shape.h"
 
 #define GREEN (SDL_Color){0, 255, 0, 255}
 #define RED (SDL_Color){255, 0, 0, 255}
@@ -72,8 +74,8 @@ int main(int argc , char** argv){
   Physics_Component comp = {.type = PHYSICS_RIGID_BODY , .rigid_body = body };
   Physics_Component comp2 = {.type = PHYSICS_RIGID_BODY , .rigid_body = body2 };
 
-  Entity entity = {&moving_box, &comp};
-  Entity entity2 = {&moving_box2, &comp2};
+  Entity entity = {moving_box, comp};
+  Entity entity2 = {moving_box2, comp2};
 
   bool running = true;
   SDL_Event e;
@@ -105,7 +107,7 @@ int main(int argc , char** argv){
     // update_gravity_physics(&entity2,deltaTime);
 
     SDL_SetRenderDrawColor(renderer,RED.r,RED.g,RED.b,RED.a);
-    render_circle_bresenham(entity.shape,renderer,true);
+    render_circle_bresenham(&entity,renderer,true);
     // render_circle_bresenham(entity2.shape,renderer,true);
 
 

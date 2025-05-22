@@ -1,37 +1,46 @@
 //
-// Created by AJYDAN on 02/05/2025.
+// Created by AJYDAN on 21/05/2025.
 //
 
+#include "shape_renderer.h"
+
+void sdl_from_rect(Rectangle* rectangle, SDL_FRect* dest_rect) {
 
 
-#include <stdlib.h>
+    dest_rect->x = rectangle->position.x;
+    dest_rect->y = rectangle->position.y;
 
-#include "shape.h"
-#include "core/entity.h"
+    dest_rect->w = rectangle->width;
+    dest_rect->h = rectangle->height;
+}
 
 
-extern Circle* new_circle(float x,float y ,float radius,SDL_Color color) {
+bool render_rect(Rectangle* rectangle , SDL_Renderer* renderer,SDL_Texture* texture) {
 
+    SDL_FRect dest_rect = {0,0,0,0};
+    sdl_from_rect(rectangle,&dest_rect);
 
-    Circle* new_circle  =  calloc(1,sizeof(Circle));
+    if (rectangle == NULL || renderer == NULL) {
+        return false;
+    }
 
-    new_circle->position.x = x;
-    new_circle->position.y = y;
+    if (texture != NULL) {
+        return SDL_RenderTexture(renderer,texture,NULL,&dest_rect);
+    }else {
+        SDL_SetRenderDrawColor(renderer,rectangle->color.r,rectangle->color.g,rectangle->color.b,rectangle->color.a);
+        return SDL_RenderFillRect(renderer,&dest_rect);
+    }
 
-    new_circle->color = color;
-
-    new_circle->radius = radius;
-
-    return new_circle;
+    return false;
 
 }
 
 
-extern void render_circle_bresenham(Shape* shape,SDL_Renderer *renderer, bool is_fill) {
+extern void render_circle_bresenham(Entity* entity,SDL_Renderer *renderer, bool is_fill) {
 
-    Circle* circle = &shape->circle;
+    Circle* circle = &entity->shape.circle;
 
-    circle->position = shape->position;
+    circle->position = entity->shape.position;
 
     SDL_SetRenderDrawColor(renderer,circle->color.r,circle->color.g,circle->color.b,circle->color.a);
 
@@ -118,7 +127,3 @@ extern void render_circle_mid_point(Circle* circle,SDL_Renderer *renderer, bool 
         x++;
     }
 }
-
-
-
-

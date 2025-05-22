@@ -8,11 +8,16 @@
 typedef struct Entity Entity;
 
 #include "physics/physics_component.h"
+#include "shapes/shape.h"
+
 
 struct Entity {
-    Shape* shape;
-    Physics_Component* physics;
+    Shape shape;
+    Physics_Component physics;
 };
+
+extern Entity create_entity(Shape shape, Physics_Component physics_component);
+
 
 
 #endif //ENTITY_H

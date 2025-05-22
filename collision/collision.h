@@ -5,7 +5,7 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 #include <stdbool.h>
-#include "rendering/shape.h"
+#include "shapes/shape.h"
 
 
 
