@@ -10,7 +10,7 @@
 #include "physics/physics.h"
 #include "physics/physics_component.h"
 #include "physics/rigid_body.h"
-#include "rendering/shape_renderer.h"
+#include "rendering/renderer.h"
 #include "shapes/shape.h"
 
 #define GREEN (SDL_Color){0, 255, 0, 255}
@@ -34,13 +34,13 @@ bool initialize_sdl() {
 }
 
 
-void handle_input(Shape* moving_box) {
+void handle_input(Entity* moving_box) {
   const bool* keystate = SDL_GetKeyboardState(NULL);
   float speed = 1.0f;
-  if (keystate[SDL_SCANCODE_LEFT])  moving_box->circle.position.x -= speed;
-  if (keystate[SDL_SCANCODE_RIGHT]) moving_box->circle.position.x += speed;
-  if (keystate[SDL_SCANCODE_UP])    moving_box->circle.position.y -= speed;
-  if (keystate[SDL_SCANCODE_DOWN])  moving_box->circle.position.y += speed;
+  if (keystate[SDL_SCANCODE_LEFT])  moving_box->position.x -= speed;
+  if (keystate[SDL_SCANCODE_RIGHT]) moving_box->position.x += speed;
+  if (keystate[SDL_SCANCODE_UP])    moving_box->position.y -= speed;
+  if (keystate[SDL_SCANCODE_DOWN])  moving_box->position.y += speed;
 }
 
 int main(int argc , char** argv){
@@ -54,28 +54,12 @@ int main(int argc , char** argv){
   SDL_Window* window ;
   SDL_Renderer *  renderer;
 
-  SDL_CreateWindowAndRenderer("Physics Engine",0,0,SDL_WINDOW_FULLSCREEN,&window,&renderer);
+  SDL_CreateWindowAndRenderer("Physics Engine",800,800,0,&window,&renderer);
   SDL_SetRenderVSync(renderer,SDL_RENDERER_VSYNC_ADAPTIVE);
 
 
-    Shape moving_box = create_circle(200,250,100,GREEN,true);
-  Shape moving_box2 = create_circle(400,250,100,RED,true);
-  Rigid_Body body = {
-    .velocity = {0, 0},
-    .acceleration = {0, 0},  // if you want persistent acceleration
-    .mass = 50.0f,
-  };
-  Rigid_Body body2 = {
-    .velocity = {0, 0},
-    .acceleration = {0, 0},  // if you want persistent acceleration
-    .mass = 10.0f,
-  };
-
-  Physics_Component comp = {.type = PHYSICS_RIGID_BODY , .rigid_body = body };
-  Physics_Component comp2 = {.type = PHYSICS_RIGID_BODY , .rigid_body = body2 };
-
-  Entity entity = {moving_box, comp};
-  Entity entity2 = {moving_box2, comp2};
+  Entity entity = create_circle_physics_entity(10,10,100,RED,PHYSICS_RIGID_BODY,{.x = 0,.y = 0},{.x = 0,.y = 0},10);
+  Entity entity2 = create_circle_physics_entity(10,10,100,RED,PHYSICS_RIGID_BODY,{.x = 0,.y = 0},{.x = 0,.y = 0},50);
 
   bool running = true;
   SDL_Event e;

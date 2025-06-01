@@ -6,14 +6,14 @@
 #define COLLISION_H
 #include <stdbool.h>
 #include "shapes/shape.h"
-
+#include "core/entity.h"
 
 
 
 extern void initialise_dispatch();
 
-extern bool is_colliding (Shape* first_shape , Shape* second_shape);
+extern bool is_colliding (Entity* first_shape , Entity* second_shape);
 
-extern bool aabb_collision(Shape* first_shape , Shape* second_shape);
+extern bool aabb_collision(Entity* first_shape , Entity* second_shape);
 
 #endif //COLLISION_H

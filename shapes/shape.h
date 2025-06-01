@@ -11,6 +11,15 @@ typedef struct Shape Shape;
 #include "circle.h"
 #include "rectangle.h"
 #include "collision/collision_types.h"
+#include <SDL3/SDL.h>
+
+typedef enum shape_type{
+    NO_SHAPE,
+    CIRCLE,
+    RECTANGLE,
+    POLYGON,
+    TRIANGLE
+}shape_type;
 
 struct Shape {
     Collision_Type collision_type;
@@ -19,12 +28,12 @@ struct Shape {
         Circle circle;
         Rectangle rect;
     };
-    Vector_2D position;
+
 };
 
 
-extern Shape create_circle(float x,float y ,float radius,SDL_Color color,bool has_collision);
-extern Shape create_rect(float x,float ,float width,float height,SDL_Color color,bool has_collision);
+extern Shape create_circle(float radius,bool has_collision);
+extern Shape create_rect(float width,float height,bool has_collision);
 extern float get_area(Shape* shape);
 
 #endif //SHAPE_H

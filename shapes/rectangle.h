@@ -12,8 +12,6 @@ typedef struct Rectangle Rectangle;
 #include <SDL3/SDL.h>
 
 struct Rectangle {
-    Vector_2D position;
-    SDL_Color color;
     float width;
     float height;
 };

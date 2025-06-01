@@ -2,20 +2,21 @@
 // Created by AJYDAN on 21/05/2025.
 //
 
-#include "shape_renderer.h"
+#include "renderer.h"
 
-void sdl_from_rect(Rectangle* rectangle, SDL_FRect* dest_rect) {
+void sdl_from_rect(Entity* entity, SDL_FRect* dest_rect) {
 
+    Rectangle* rectangle = &entity->shape.rect;
 
-    dest_rect->x = rectangle->position.x;
-    dest_rect->y = rectangle->position.y;
+    dest_rect->x = entity->position.x;
+    dest_rect->y = entity->position.y;
 
     dest_rect->w = rectangle->width;
     dest_rect->h = rectangle->height;
 }
 
 
-bool render_rect(Rectangle* rectangle , SDL_Renderer* renderer,SDL_Texture* texture) {
+bool render_rect(Entity* rectangle , SDL_Renderer* renderer,SDL_Texture* texture) {
 
     SDL_FRect dest_rect = {0,0,0,0};
     sdl_from_rect(rectangle,&dest_rect);
@@ -40,13 +41,11 @@ extern void render_circle_bresenham(Entity* entity,SDL_Renderer *renderer, bool 
 
     Circle* circle = &entity->shape.circle;
 
-    circle->position = entity->shape.position;
+    SDL_SetRenderDrawColor(renderer,entity->color.r,entity->color.g,entity->color.b,entity->color.a);
 
-    SDL_SetRenderDrawColor(renderer,circle->color.r,circle->color.g,circle->color.b,circle->color.a);
-
-    int cx = circle->position.x;
-    int cy = circle->position.y;
-    int radius = circle->radius;
+    int cx = entity->position.x;
+    int cy = entity->position.y;
+    int radius = entity->shape.circle.radius;
 
     int x = radius;
     int y = 0;
@@ -84,11 +83,13 @@ extern void render_circle_bresenham(Entity* entity,SDL_Renderer *renderer, bool 
 }
 
 
-extern void render_circle_mid_point(Circle* circle,SDL_Renderer *renderer, bool is_fill) {
+extern void render_circle_mid_point(Entity* entity,SDL_Renderer *renderer, bool is_fill) {
 
-    int cx = circle->position.x;
-    int cy = circle->position.y;
-    int radius = circle->radius;
+    SDL_SetRenderDrawColor(renderer,entity->color.r,entity->color.g,entity->color.b,entity->color.a);
+
+    int cx = entity->position.x;
+    int cy = entity->position.y;
+    int radius = entity->shape.circle.radius;
 
     int x = 0;
     int y = -radius;

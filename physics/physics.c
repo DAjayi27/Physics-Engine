@@ -16,15 +16,15 @@
  * read (https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/drageq.html) or
  * watch (https://www.youtube.com/watch?v=ZgqJ5wQF944&ab_channel=Debunked) for more info
  *
- * @param shape the shape or entity being updated
+ * @param entity the shape or entity being updated
  * @param dt id the frame update time (time delay between each drawn frame)
  *
  * NOTE: there is a conversion btw px and meters at a rate of 100px = 1m
  *
  ***/
-void handle_rigid_body_gravity(Entity* shape, float dt, Rigid_Body* rb) {
+void handle_rigid_body_gravity(Entity* entity, float dt, Rigid_Body* rb) {
     float velocity_y = rb->velocity.y;
-    float area = get_area(&shape->shape);
+    float area = get_area(&entity->shape);
 
     // Air drag: F_drag = -0.5 * ρ * A * v * |v|
     float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y)*0.47;
@@ -46,7 +46,7 @@ void handle_rigid_body_gravity(Entity* shape, float dt, Rigid_Body* rb) {
 
     Vector_2D new = {0, new_position_offset*100};
 
-    shape->shape.position = vector_add(shape->shape.position, new);
+    entity->position = vector_add(entity->position, new);
 }
 
 
