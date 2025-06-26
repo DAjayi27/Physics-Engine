@@ -146,8 +146,20 @@ extern bool circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
  }
 }
 
-
-extern void initialise_dispatch() {
+/**
+ * @brief Initializes the collision dispatch table.
+ *
+ * This function sets up a 2D dispatch table for handling collisions between different types of shapes.
+ * The dispatch table is used to determine which collision function to call based on the types of the
+ * two shapes involved in the collision.
+ *
+ * The table is initialized with NULL values for unsupported collision type combinations, and specific
+ * collision functions are assigned for supported combinations.
+ *
+ * @note The dispatch table is a static 2D array of function pointers, where each entry corresponds to
+ * a specific pair of collision types.
+ */
+extern void initialise_collision_dispatch() {
 
  for (int i = 0; i < NO_OF_COLLISIONS; ++i) {
   for (int j = 0; j < NO_OF_COLLISIONS; ++j) {

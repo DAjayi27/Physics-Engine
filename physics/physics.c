@@ -30,7 +30,7 @@ void handle_rigid_body_gravity(Entity* entity, float dt, Rigid_Body* rb) {
     float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y)*0.47;
 
     // Gravity
-    float gravitational_force = rb->mass * 9.8;
+    float gravitational_force = rb->mass * 4.5;
 
     // Net force
     float total_force = drag_force + gravitational_force;

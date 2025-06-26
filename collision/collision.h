@@ -10,7 +10,7 @@
 
 
 
-extern void initialise_dispatch();
+extern void initialise_collision_dispatch();
 
 extern bool is_colliding (Entity* first_shape , Entity* second_shape);
 
