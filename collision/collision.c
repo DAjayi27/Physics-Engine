@@ -208,3 +208,28 @@ extern bool is_colliding (Entity* first_shape , Entity* second_shape) {
 
 
 }
+
+
+extern void handle_collision(Entity* entity_a , Entity* entity_b) {
+
+  // Only handle collision if exactly one entity is kinematic
+  if ((entity_a->physics.type == PHYSICS_KINEMATIC && entity_b->physics.type != PHYSICS_KINEMATIC) ||
+      (entity_a->physics.type != PHYSICS_KINEMATIC && entity_b->physics.type == PHYSICS_KINEMATIC))
+  {
+     Entity* stop_entity;
+    if (entity_a->physics.type != PHYSICS_KINEMATIC) {
+
+      stop_entity = entity_a;
+
+    }else {
+      stop_entity = entity_b;
+    }
+
+   Vector_2D zero = {0,0};
+   stop_entity->physics.rigid_body.acceleration = zero;
+   stop_entity->physics.rigid_body.velocity = zero;
+
+  }
+
+
+}

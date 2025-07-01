@@ -16,4 +16,6 @@ extern bool is_colliding (Entity* first_shape , Entity* second_shape);
 
 extern bool aabb_collision(Entity* first_shape , Entity* second_shape);
 
+extern void handle_collision(Entity* entity_a , Entity* entity_b);
+
 #endif //COLLISION_H

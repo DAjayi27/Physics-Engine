@@ -53,20 +53,19 @@ void handle_input(Entity* moving_box) {
 }
 
 /**
- * @brief Renders an array of circle entities using the Bresenham algorithm.
+ * @brief Renders an array of entities using the appropriate  algorithm.
  *
  * This function iterates through an array of entities and renders each circle
- * using the specified SDL renderer. The rendering is performed using the
- * Bresenham algorithm for drawing circles.
+ * using the specified SDL renderer.
  *
- * @param circles Pointer to an array of entities representing circles to render.
+ * @param entity Pointer to an array of entities representing circles to render.
  * @param number The number of entities in the array.
  * @param renderer Pointer to the SDL_Renderer used for rendering.
  */
-void render_entities(Entity* circles, int number,SDL_Renderer* renderer) {
+void render_entities(Entity* entity, int number,SDL_Renderer* renderer) {
 
   for (int i = 0; i < number; ++i) {
-    render_entity(&circles[i],renderer,null,false);
+    render_entity(&entity[i],renderer,null,false);
   }
 
 
@@ -121,6 +120,29 @@ void create_circle_entities(Entity* entities, int count) {
     }
 }
 
+void check_collisions(Entity* entity, int count, float delta_time) {
+
+    for (int i = 0; i < count; ++i) {
+
+        for (int j = 0; j < count; ++j) {
+
+            if (i == j ) break;
+
+            Entity* entityA = &entity[i];
+            Entity* entityB = &entity[j];
+
+            if (is_colliding(entityA,entityB)) {
+                SDL_SetLogPriority(SDL_LOG_CATEGORY_TEST,SDL_LOG_PRIORITY_INFO);
+                SDL_LogInfo(SDL_LOG_CATEGORY_TEST, "Collision detected");
+                handle_collision(entityA,entityB);
+            }
+
+        }
+    }
+
+}
+
+
 /**
  * @brief Runs the main application loop.
  * @param entities Array of entities.
@@ -131,6 +153,13 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
     bool running = true;
     SDL_Event e;
     uint64_t lastTime = SDL_GetPerformanceCounter();
+
+    float width = 100;
+    float x =  0;
+    float y = 1080-width;
+    Entity floor =  create_rect_physics_entity(x,y,1920,width,true,GREEN);
+
+    entities[count-1] = floor;
 
     while (running) {
         uint64_t currentTime = SDL_GetPerformanceCounter();
@@ -146,16 +175,8 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
         SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderClear(renderer);
 
-        float width = 100;
-        float x =  0;
-        float y = 1080-width;
-
-
-        Entity floor =  create_rect_entity(x,y,1920,width,true,GREEN);
-        render_entity(&floor,renderer,null,true);
-
-
         update_physics(entities, count, deltaTime);
+        check_collisions(entities, count,deltaTime);
 
         SDL_SetRenderDrawColor(renderer, RED.r, RED.g, RED.b, RED.a);
         render_entities(entities, count, renderer);
@@ -173,8 +194,8 @@ int main(int argc, char** argv) {
     SDL_Renderer* renderer = NULL;
     init_window_and_renderer(&window, &renderer);
 
-    int count = 10;
-    Entity entities[count];
+    int count = 2;
+    Entity entities[count+1];
     create_circle_entities(entities, count);
 
 

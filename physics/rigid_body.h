@@ -19,6 +19,7 @@ struct Rigid_Body {
     float restitution;
     bool affected_by_gravity;
     bool is_static;
+    float friction;
 
 };
 

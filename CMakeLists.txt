@@ -30,7 +30,11 @@ add_executable(Physics_Engine
         physics/physics.c
         physics/physics.h
         rendering/renderer.c
-        rendering/renderer.h)
+        rendering/renderer.h
+        physics/kinematic.c
+        physics/kinematic.h
+        physics/particle.cpp
+        physics/particle.h)
 
 # Link SDL3 to the executable
 target_link_libraries(Physics_Engine SDL3_image::SDL3_image)
