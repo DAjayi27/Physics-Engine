@@ -3,3 +3,7 @@
 //
 
 #include "shape.h"
+
+bool Shape::has_collider() const {
+    return has_collision;
+}

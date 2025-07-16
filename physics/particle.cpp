@@ -14,69 +14,65 @@
 ///
 
 #include "particle.h"
+#include "core/vector.h"
 
-/**
- * \brief Default constructor for Particle.
- *
- * Initializes all properties to default values:
- * - mass = 0
- * - velocity = {0, 0}
- * - is_static = false
- * - lifetime = 0
- */
 Particle::Particle() {
-	this->mass = 0;
-	this->set_velocity({0,0});
-	this->set_is_static(false);
-	this->lifetime = 0;
+    // Default constructor - all values are initialized in the header
 }
 
-/**
- * \brief Constructs a Particle with the specified properties.
- * \param m The mass of the particle.
- * \param v The initial velocity of the particle.
- * \param lifetime The lifetime of the particle.
- * \param isStat Whether the particle is static (immovable).
- */
-Particle::Particle(float m, Vector_2D v, float lifetime, bool isStat) {
-	this->mass = m;
-	this->set_velocity(v);
-	this->set_is_static(isStat);
-	this->lifetime = lifetime;
+Particle::Particle(float mass, Vector2D velocity, float lifetime, bool is_static) {
+    this->mass = mass;
+    this->velocity = velocity;
+    this->lifetime = lifetime;
+    this->static_object = is_static;
 }
 
-/**
- * \brief Gets the mass of the particle.
- * \return The mass.
- */
-float Particle::get_mass() {
-	return mass;
+void Particle::update(float delta_time) {
+    if (static_object) {
+        return;
+    }
+
+    // Decrease lifetime
+    lifetime -= delta_time;
+
+    // Apply gravity if enabled
+    if (affected_by_gravity) {
+        const Vector2D gravity = {0.0f, 981.0f}; // 981 pixels/s²
+        velocity = vector_add(velocity, vector_scale(gravity, delta_time));
+    }
+
+    // Update position: p = p + v * dt
+    position = vector_add(position, vector_scale(velocity, delta_time));
 }
 
-/**
- * \brief Checks if the particle is affected by gravity.
- * \return True if affected by gravity, false otherwise.
- */
-bool Particle::is_affected_by_gravity() {
-	return affected_by_gravity;
+PhysicsType Particle::get_type() const {
+    return PhysicsType::PARTICLE;
 }
 
-/**
- * \brief Sets whether the particle is affected by gravity.
- * \param val True to enable gravity, false to disable it.
- */
-void Particle::set_affected_by_gravity(bool val) {
-	affected_by_gravity = val;
+float Particle::get_mass() const {
+    return mass;
 }
 
-/**
- * \brief Sets the mass of the particle.
- * \param m The new mass value.
- */
-void Particle::set_mass(float m) {
-	mass = m;
+bool Particle::is_affected_by_gravity() const {
+    return affected_by_gravity;
 }
 
-Physics_Type Particle::get_type() {
-	return PHYSICS_PARTICLE;
+float Particle::get_lifetime() const {
+    return lifetime;
+}
+
+void Particle::set_mass(float new_mass) {
+    mass = new_mass;
+}
+
+void Particle::set_affected_by_gravity(bool affected) {
+    affected_by_gravity = affected;
+}
+
+void Particle::set_lifetime(float new_lifetime) {
+    lifetime = new_lifetime;
+}
+
+bool Particle::is_alive() const {
+    return lifetime > 0.0f;
 }

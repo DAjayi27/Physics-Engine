@@ -1,31 +1,36 @@
-//
-// Created by AJYDAN on 01/07/2025.
-//
+#pragma once
 
-#ifndef KINEMATIC_H
-#define KINEMATIC_H
 #include "physics_component.h"
-#include "core/vector.h"
 
-class Kinematic : public Physics_Component{
+/**
+ * @brief Kinematic physics component for controlled movement
+ * 
+ * Implements physics behavior for objects with controlled movement,
+ * typically used for player characters or scripted objects.
+ */
+class Kinematic : public Physics_Component {
 private:
-	bool affected_by_gravity;
-	Vector_2D acceleration{};
-	float mass;
+    bool affected_by_gravity = true;
+    Vector2D acceleration{0.0f, 0.0f};
+    float mass = 1.0f;
 
 public:
-	Kinematic();
-	Kinematic(float mass,Vector_2D velocity,  Vector_2D a, bool isStat, bool affectedGravity);
-	const Vector_2D get_acceleration();
-	float get_mass();
-	bool is_affected_by_gravity();
-	Physics_Type get_type() override;
+    // Constructors
+    Kinematic();
+    Kinematic(float mass, Vector2D velocity, Vector2D acceleration, 
+              bool is_static, bool affected_by_gravity);
 
-	void set_acceleration(Vector_2D a);
-	void set_mass(float m);
-	void set_affected_by_gravity(bool val);
+    // Core physics methods
+    void update(float delta_time) override;
+    PhysicsType get_type() const override;
 
+    // Property getters
+    Vector2D get_acceleration() const;
+    float get_mass() const;
+    bool is_affected_by_gravity() const;
+
+    // Property setters
+    void set_acceleration(Vector2D acceleration);
+    void set_mass(float mass);
+    void set_affected_by_gravity(bool affected);
 };
-
-
-#endif //KINEMATIC_H

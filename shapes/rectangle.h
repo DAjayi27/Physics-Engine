@@ -3,24 +3,34 @@
 //
 
 #pragma once
+
 #include "shape.h"
 
-class Rectangle : public Shape{
+/**
+ * @brief Rectangle shape with width and height dimensions
+ * 
+ * Implements axis-aligned bounding box (AABB) collision detection
+ * and rectangular area calculation.
+ */
+class Rectangle : public Shape {
+private:
+    float width = 1.0f;
+    float height = 1.0f;
 
-  float width;
-  float height;
-
-  public:
-		Rectangle(float width,float height);
-		Rectangle(float width,float height,bool has_collision);
-		void set_width(float width);
-		void set_height(float height);
-		float get_width();
-		float get_height();
-	  Shape_Type getType() override;
-		Collision_Type get_collision_type() override;
-		float get_area() override;
-
+public:
+    Rectangle(float width, float height);
+    Rectangle(float width, float height, bool has_collision);
+    
+    // Core shape methods
+    ShapeType get_type() const override;
+    Collision_Type get_collision_type() const override;
+    float get_area() const override;
+    
+    // Rectangle-specific methods
+    float get_width() const;
+    float get_height() const;
+    void set_width(float width);
+    void set_height(float height);
 };
 
 

@@ -13,18 +13,14 @@
 
 namespace Renderer {
 
-	typedef void (*RenderFunc)(Entity* entity , SDL_Renderer* renderer,SDL_Texture* texture,bool is_fill);
+	typedef void (*RenderFunc)(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill);
 
 	static RenderFunc render_dispatch_table[RENDER_OPTIONS];
 
 	/**
-	 * @brief Converts an Entity's rectangle shape to an SDL_FRect.
-	 *
-	 * This function extracts the rectangle shape from the given entity and fills the provided
-	 * SDL_FRect structure with the position and size data.
-	 *
-	 * @param entity Pointer to the Entity containing the rectangle shape.
-	 * @param dest_rect Pointer to the SDL_FRect to be filled.
+	 * @brief Converts an Entity's rectangle shape to an SDL_FRect
+	 * @param entity Pointer to the Entity containing the rectangle shape
+	 * @param dest_rect Pointer to the SDL_FRect to be filled
 	 */
 	void sdl_from_rect(Entity* entity, SDL_FRect* dest_rect) {
 
@@ -38,58 +34,50 @@ namespace Renderer {
 	}
 
 	/**
-	 * @brief Renders a rectangle entity using SDL.
-	 *
-	 * This function renders the given rectangle entity using the provided SDL_Renderer.
-	 * If a texture is provided, it renders the texture; otherwise, it fills the rectangle
-	 * with the entity's color.
-	 *
-	 * @param entity Pointer to the Entity representing the rectangle.
-	 * @param renderer Pointer to the SDL_Renderer used for rendering.
-	 * @param texture Optional SDL_Texture to render. If NULL, a filled rectangle is drawn.
-	 * @param is_fill Boolean indicating whether the rectangle should be filled.
+	 * @brief Renders a rectangle entity using SDL
+	 * @param entity Pointer to the Entity representing the rectangle
+	 * @param renderer Pointer to the SDL_Renderer used for rendering
+	 * @param texture Optional SDL_Texture to render. If NULL, a filled rectangle is drawn
+	 * @param fill Boolean indicating whether the rectangle should be filled
 	 */
-	void render_rect(Entity* entity , SDL_Renderer* renderer,SDL_Texture* texture,bool is_fill) {
+	void render_rect(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill) {
 
-	    SDL_FRect dest_rect = {0,0,0,0};
-	    sdl_from_rect(entity,&dest_rect);
+	    SDL_FRect dest_rect = {0, 0, 0, 0};
+	    sdl_from_rect(entity, &dest_rect);
 
 	    if (entity == NULL || renderer == NULL) {
 	      exit(1000);
 	    }
 
 	    if (texture != NULL) {
-	         SDL_RenderTexture(renderer,texture,NULL,&dest_rect);
+	         SDL_RenderTexture(renderer, texture, NULL, &dest_rect);
 	    }else {
-	        SDL_SetRenderDrawColor(renderer,entity->color.r,entity->color.g,entity->color.b,entity->color.a);
-	         SDL_RenderFillRect(renderer,&dest_rect);
+	        SDL_SetRenderDrawColor(renderer, entity->color.r, entity->color.g, entity->color.b, entity->color.a);
+	         SDL_RenderFillRect(renderer, &dest_rect);
 	    }
 
 	}
 
 	/**
-	 * @brief Renders a circle entity using the Bresenham algorithm.
-	 *
-	 * This function draws a circle (optionally filled) at the entity's position using the
-	 * Bresenham circle drawing algorithm.
-	 *
-	 * @param entity Pointer to the Entity representing the circle.
-	 * @param renderer Pointer to the SDL_Renderer used for rendering.
-	 * @param is_fill If true, the circle is filled; otherwise, only the outline is drawn.
+	 * @brief Renders a circle entity using the Bresenham algorithm
+	 * @param entity Pointer to the Entity representing the circle
+	 * @param renderer Pointer to the SDL_Renderer used for rendering
+	 * @param texture Optional texture (unused for circles)
+	 * @param fill If true, the circle is filled; otherwise, only the outline is drawn
 	 */
-	extern void render_circle_bresenham(Entity* entity,SDL_Renderer *renderer,SDL_Texture* texture, bool is_fill) {
+	void render_circle_bresenham(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill) {
 
-		if (entity->shape->getType()!= CIRCLE) {
+		if (entity->shape->get_type() != ShapeType::CIRCLE) {
 			exit(100);
 		}
 
 
 
-	    SDL_SetRenderDrawColor(renderer,entity->color.r,entity->color.g,entity->color.b,entity->color.a);
+	    SDL_SetRenderDrawColor(renderer, entity->color.r, entity->color.g, entity->color.b, entity->color.a);
 
 	    int cx = entity->physics->get_position().x;
 	    int cy = entity->physics->get_position().y;
-	    int radius = dynamic_cast<Circle*>(entity->shape.get())->get_area();
+	    int radius = dynamic_cast<Circle*>(entity->shape.get())->get_radius();
 
 	    int x = radius;
 	    int y = 0;
@@ -105,19 +93,17 @@ namespace Renderer {
 	        SDL_RenderPoint(renderer, cx + y, cy - x);
 	        SDL_RenderPoint(renderer, cx - y, cy - x);
 
-	        if (is_fill) {
-
-	            SDL_RenderLine(renderer,cx + x,cy + y,cx - x,cy + y);
-	            SDL_RenderLine(renderer,cx + x,cy - y,cx - x,cy - y);
-	            SDL_RenderLine(renderer,cx + y,cy + x,cx - y,cy + x);
-	            SDL_RenderLine(renderer,cx + y,cy - x,cx - y,cy - x);
-
+	        if (fill) {
+	            SDL_RenderLine(renderer, cx + x, cy + y, cx - x, cy + y);
+	            SDL_RenderLine(renderer, cx + x, cy - y, cx - x, cy - y);
+	            SDL_RenderLine(renderer, cx + y, cy + x, cx - y, cy + x);
+	            SDL_RenderLine(renderer, cx + y, cy - x, cx - y, cy - x);
 	        }
 
 	        if (d < 0) {
-	            d = d + (2 * (3 + 2*y) );
+	            d = d + (2 * (3 + 2 * y));
 	        } else {
-	            d = d + (2 * (5 - 2*x + 2*y));
+	            d = d + (2 * (5 - 2 * x + 2 * y));
 	            x--;
 	        }
 	        y++;
@@ -127,73 +113,59 @@ namespace Renderer {
 	}
 
 	/**
-	 * @brief Renders a circle entity using the Midpoint algorithm.
-	 *
-	 * This function draws a circle (optionally filled) at the entity's position using the
-	 * Midpoint circle drawing algorithm.
-	 *
-	 * @param entity Pointer to the Entity representing the circle.
-	 * @param renderer Pointer to the SDL_Renderer used for rendering.
-	 * @param is_fill If true, the circle is filled; otherwise, only the outline is drawn.
+	 * @brief Renders a circle entity using the Midpoint algorithm
+	 * @param entity Pointer to the Entity representing the circle
+	 * @param renderer Pointer to the SDL_Renderer used for rendering
+	 * @param texture Optional texture (unused for circles)
+	 * @param fill If true, the circle is filled; otherwise, only the outline is drawn
 	 */
-	extern void render_circle_mid_point(Entity* entity,SDL_Renderer *renderer,SDL_Texture* texture, bool is_fill) {
+	void render_circle_midpoint(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill) {
+		SDL_SetRenderDrawColor(renderer, entity->color.r, entity->color.g, entity->color.b, entity->color.a);
 
-	    SDL_SetRenderDrawColor(renderer,entity->color.r,entity->color.g,entity->color.b,entity->color.a);
-
-		if (entity->shape->getType() != CIRCLE) {
+		if (entity->shape->get_type() != ShapeType::CIRCLE) {
 			exit(100);
 		}
 
-	    int cx = entity->physics->get_position().x;
-	    int cy = entity->physics->get_position().y;
-	    int radius = dynamic_cast<Circle*>(entity->shape.get())->get_area();
+		int cx = entity->physics->get_position().x;
+		int cy = entity->physics->get_position().y;
+		int radius = dynamic_cast<Circle*>(entity->shape.get())->get_radius();
 
-	    int x = 0;
-	    int y = -radius;
-	    int d = -radius + 0.25;
+		int x = 0;
+		int y = -radius;
+		int d = -radius + 0.25;
 
-	    while (x < -y) {
+		while (x < -y) {
+			if (d > 0) {
+				y++;
+				d = d + (2 * (x + y) + 1);
+			} else {
+				d = d + 2 * x + 1;
+			}
 
-	        if (d > 0) {
-	            y++;
-	            d = d + (2 * (x + y) + 1 );
-	        } else {
-	            d = d + 2 * x + 1;
+			SDL_RenderPoint(renderer, cx + x, cy + y);
+			SDL_RenderPoint(renderer, cx - x, cy + y);
+			SDL_RenderPoint(renderer, cx + x, cy - y);
+			SDL_RenderPoint(renderer, cx - x, cy - y);
+			SDL_RenderPoint(renderer, cx + y, cy + x);
+			SDL_RenderPoint(renderer, cx - y, cy + x);
+			SDL_RenderPoint(renderer, cx + y, cy - x);
+			SDL_RenderPoint(renderer, cx - y, cy - x);
 
-	        }
+			if (fill) {
+				SDL_RenderLine(renderer, cx + x, cy + y, cx - x, cy + y);
+				SDL_RenderLine(renderer, cx + x, cy - y, cx - x, cy - y);
+				SDL_RenderLine(renderer, cx + y, cy + x, cx - y, cy + x);
+				SDL_RenderLine(renderer, cx + y, cy - x, cx - y, cy - x);
+			}
 
-	        SDL_RenderPoint(renderer, cx + x, cy + y);
-	        SDL_RenderPoint(renderer, cx - x, cy + y);
-	        SDL_RenderPoint(renderer, cx + x, cy - y);
-	        SDL_RenderPoint(renderer, cx - x, cy - y);
-	        SDL_RenderPoint(renderer, cx + y, cy + x);
-	        SDL_RenderPoint(renderer, cx - y, cy + x);
-	        SDL_RenderPoint(renderer, cx + y, cy - x);
-	        SDL_RenderPoint(renderer, cx - y, cy - x);
-
-	        if (is_fill) {
-
-	            SDL_RenderLine(renderer,cx + x,cy + y,cx - x,cy + y);
-	            SDL_RenderLine(renderer,cx + x,cy - y,cx - x,cy - y);
-	            SDL_RenderLine(renderer,cx + y,cy + x,cx - y,cy + x);
-	            SDL_RenderLine(renderer,cx + y,cy - x,cx - y,cy - x);
-
-	        }
-
-
-
-	        x++;
-	    }
+			x++;
+		}
 	}
 
 	/**
-	     * @brief Initializes the dispatch table with rendering functions.
-	     *
-	     * This function sets up the dispatch table by associating specific rendering functions
-	     * with collision types. It ensures that each entry in the table is initialized to NULL
-	     * before assigning the appropriate rendering functions.
-	     */
-		void initialise_render_dispatch() {
+	 * @brief Initializes the rendering system
+	 */
+	void initialize_render_system() {
 
 	        for (int i = 0; i < RENDER_OPTIONS; ++i) {
 	            render_dispatch_table[i] = nullptr;
@@ -205,22 +177,18 @@ namespace Renderer {
 	    }
 
 	    /**
-	     * @brief Renders an entity using the appropriate rendering function.
-	     *
-	     * This function determines the rendering function to use based on the entity's collision type
-	     * and invokes it. If the collision type is unsupported, an error message is printed to stderr.
-	     *
-	     * @param entity Pointer to the Entity to be rendered.
-	     * @param renderer Pointer to the SDL_Renderer used for rendering.
-	     * @param texture Optional SDL_Texture to render. If NULL, a default rendering method is used.
-	     * @param is_fill Boolean indicating whether the entity should be filled during rendering.
+	     * @brief Renders an entity using the appropriate rendering function
+	     * @param entity Pointer to the Entity to be rendered
+	     * @param renderer Pointer to the SDL_Renderer used for rendering
+	     * @param texture Optional SDL_Texture to render. If NULL, a default rendering method is used
+	     * @param fill Boolean indicating whether the entity should be filled during rendering
 	     */
-		void render_entity(Entity* entity, SDL_Renderer *renderer,SDL_Texture* texture, bool is_fill) {
+		void render_entity(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill) {
 
-	        RenderFunc func =  render_dispatch_table[entity->shape->get_collision_type()];
+	        RenderFunc func = render_dispatch_table[entity->shape->get_collision_type()];
 
 	        if (func) {
-	            func(entity, renderer,texture,is_fill);
+	            func(entity, renderer, texture, fill);
 	        }
 	        else {
 	            fprintf(stderr, "Unsupported collision type combination\n");

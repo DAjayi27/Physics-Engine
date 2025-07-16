@@ -1,28 +1,38 @@
-//
-// Created by AJYDAN on 01/07/2025.
-//
+#pragma once
 
-#ifndef PARTICLE_H
-#define PARTICLE_H
 #include "physics_component.h"
-#include "core/vector.h"
 
-class Particle : public  Physics_Component{
-
+/**
+ * @brief Particle physics component for simple particle effects
+ * 
+ * Implements lightweight physics behavior for particles with lifetime
+ * and simplified physics calculations.
+ */
+class Particle : public Physics_Component {
 private:
-    float lifetime;
-    float mass;
-		bool affected_by_gravity;
+    float lifetime = 1.0f;
+    float mass = 1.0f;
+    bool affected_by_gravity = true;
+
 public:
-	Particle();
-	Particle(float m, Vector_2D v, float lifetime, bool isStat);
-	float get_mass();
-	bool is_affected_by_gravity();
-	void set_affected_by_gravity(bool val);
-	void set_mass(float m);
-	Physics_Type get_type() override;
+    // Constructors
+    Particle();
+    Particle(float mass, Vector2D velocity, float lifetime, bool is_static);
 
-} ;
+    // Core physics methods
+    void update(float delta_time) override;
+    PhysicsType get_type() const override;
 
+    // Property getters
+    float get_mass() const;
+    bool is_affected_by_gravity() const;
+    float get_lifetime() const;
 
-#endif //PARTICLE_H
+    // Property setters
+    void set_mass(float mass);
+    void set_affected_by_gravity(bool affected);
+    void set_lifetime(float lifetime);
+
+    // Particle-specific methods
+    bool is_alive() const;
+};

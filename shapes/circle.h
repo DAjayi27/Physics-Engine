@@ -3,18 +3,28 @@
 //
 
 #pragma once
+
 #include "shape.h"
 
+/**
+ * @brief Circle shape with radius-based geometry
+ * 
+ * Implements circular collision detection and area calculation
+ * using the mathematical properties of circles.
+ */
+class Circle : public Shape {
+private:
+    float radius = 1.0f;
 
-class Circle : public Shape{
-
-	float radius;
-
-	public:
-		explicit Circle(float radius);
-		float get_radius();
-		void set_radius(float radius);
-		Shape_Type getType() override;
-		Collision_Type get_collision_type() override;
-		float get_area() override;
+public:
+    explicit Circle(float radius);
+    
+    // Core shape methods
+    ShapeType get_type() const override;
+    Collision_Type get_collision_type() const override;
+    float get_area() const override;
+    
+    // Circle-specific methods
+    float get_radius() const;
+    void set_radius(float radius);
 };

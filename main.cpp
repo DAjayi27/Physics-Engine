@@ -11,87 +11,71 @@
 #include "physics/physics.h"
 #include "physics/physics_component.h"
 #include "rendering/renderer.h"
+#include "shapes/circle.h"
+#include "shapes/rectangle.h"
+#include "physics/rigid_body.h"
 
-
+// Color definitions
 #define GREEN (SDL_Color){0, 255, 0, 255}
 #define RED (SDL_Color){255, 0, 0, 255}
 #define WHITE (SDL_Color){255, 255, 255, 255}
-#define null NULL
 
-
-
+/**
+ * @brief Initializes SDL and returns success status
+ * @return true if initialization failed, false if successful
+ */
 bool initialize_sdl() {
-
-  if (SDL_Init(SDL_INIT_VIDEO)) {
-    return true;
-  }
-  else {
-    SDL_Log("SDL Failed To initalize %s",SDL_GetError());
-    SDL_Quit();
-    exit(-1);
-  }
-
-
+    if (SDL_Init(SDL_INIT_VIDEO)) {
+        return true;
+    } else {
+        SDL_Log("SDL Failed To initialize %s", SDL_GetError());
+        SDL_Quit();
+        exit(-1);
+    }
 }
 
-
 /**
- * @brief Handles user input to move a box entity.
- *
- * This function checks the current state of the keyboard and updates the position
- * of the given entity based on arrow key inputs. The movement speed is fixed at 1.0f.
- *
- * @param moving_box Pointer to the entity whose position will be updated.
+ * @brief Handles user input to move an entity
+ * @param entity Pointer to the entity to move
  */
-void handle_input(Entity* moving_box) {
-  const bool* keystate = SDL_GetKeyboardState(NULL);
-  float speed = 1.0f;
-  if (keystate[SDL_SCANCODE_LEFT])  moving_box->position.x -= speed;
-  if (keystate[SDL_SCANCODE_RIGHT]) moving_box->position.x += speed;
-  if (keystate[SDL_SCANCODE_UP])    moving_box->position.y -= speed;
-  if (keystate[SDL_SCANCODE_DOWN])  moving_box->position.y += speed;
+void handle_input(Entity* entity) {
+    const bool* keystate = SDL_GetKeyboardState(NULL);
+    float speed = 1.0f;
+    
+    if (keystate[SDL_SCANCODE_LEFT])  entity->set_position_x(entity->get_position().x - speed);
+    if (keystate[SDL_SCANCODE_RIGHT]) entity->set_position_x(entity->get_position().x + speed);
+    if (keystate[SDL_SCANCODE_UP])    entity->set_position_y(entity->get_position().y - speed);
+    if (keystate[SDL_SCANCODE_DOWN])  entity->set_position_y(entity->get_position().y + speed);
 }
 
 /**
- * @brief Renders an array of entities using the appropriate  algorithm.
- *
- * This function iterates through an array of entities and renders each circle
- * using the specified SDL renderer.
- *
- * @param entity Pointer to an array of entities representing circles to render.
- * @param number The number of entities in the array.
- * @param renderer Pointer to the SDL_Renderer used for rendering.
+ * @brief Renders an array of entities
+ * @param entities Array of entities to render
+ * @param count Number of entities in the array
+ * @param renderer SDL renderer
  */
-void render_entities(Entity* entity, int number,SDL_Renderer* renderer) {
-
-  for (int i = 0; i < number; ++i) {
-    render_entity(&entity[i],renderer,null,false);
-  }
-
-
+void render_entities(Entity* entities, int count, SDL_Renderer* renderer) {
+    for (int i = 0; i < count; ++i) {
+        Renderer::render_entity(&entities[i], renderer, nullptr, false);
+    }
 }
 
 /**
- * @brief Updates the physics of an array of entities.
- *
- * This function iterates through an array of entities and updates their physics
- * properties based on gravity and the elapsed time.
- *
- * @param circles Pointer to an array of entities to update.
- * @param number The number of entities in the array.
- * @param dt The time delta used for physics calculations.
+ * @brief Updates physics for an array of entities
+ * @param entities Array of entities to update
+ * @param count Number of entities in the array
+ * @param delta_time Time elapsed since last frame
  */
-void update_physics(Entity* circles, int number,float dt) {
-  for (int i = 0; i < number; ++i) {
-    update_gravity_physics(&circles[i],dt);
-  }
+void update_physics_simulation(Entity* entities, int count, float delta_time) {
+    for (int i = 0; i < count; ++i) {
+        update_physics(&entities[i], delta_time);
+    }
 }
 
-
 /**
- * @brief Initializes the SDL window and renderer.
- * @param window Pointer to SDL_Window* to be initialized.
- * @param renderer Pointer to SDL_Renderer* to be initialized.
+ * @brief Initializes the SDL window and renderer
+ * @param window Pointer to SDL_Window* to be initialized
+ * @param renderer Pointer to SDL_Renderer* to be initialized
  */
 void init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer) {
     SDL_Rect bounds;
@@ -104,9 +88,9 @@ void init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer) {
 }
 
 /**
- * @brief Creates an array of circle entities with random positions and mass.
- * @param entities Array to fill with entities.
- * @param count Number of entities to create.
+ * @brief Creates an array of circle entities with random positions and mass
+ * @param entities Array to fill with entities
+ * @param count Number of entities to create
  */
 void create_circle_entities(Entity* entities, int count) {
     for (int i = 0; i < count; i++) {
@@ -114,57 +98,73 @@ void create_circle_entities(Entity* entities, int count) {
         float x = rand() % (1920 - 2 * radius) + radius;
         float y = rand() % (1080 - 2 * radius) + radius;
         SDL_Color color = RED;
-        Physics_Type physics = PHYSICS_RIGID_BODY;
         float mass = 10.0f + ((float)rand() / RAND_MAX) * (50.0f - 10.0f);
-        entities[i] = create_circle_zero_entity(x, y, radius, color, physics, mass);
+        
+        // Create shape
+        auto shape = std::make_unique<Circle>(radius);
+        
+        // Create physics component
+        auto physics = std::make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},false, true);
+        
+        // Set initial position
+        physics->set_position(Vector2D{x, y});
+        
+        // Create entity using constructor
+        entities[i] = Entity(std::move(shape), std::move(physics), color);
+        entities[i].collision_type = CIRCLE_COLLISION;
     }
 }
-
-void check_collisions(Entity* entity, int count, float delta_time) {
-
-    for (int i = 0; i < count; ++i) {
-
-        for (int j = 0; j < count; ++j) {
-
-            if (i == j ) break;
-
-            Entity* entityA = &entity[i];
-            Entity* entityB = &entity[j];
-
-            if (is_colliding(entityA,entityB)) {
-                SDL_SetLogPriority(SDL_LOG_CATEGORY_TEST,SDL_LOG_PRIORITY_INFO);
-                SDL_LogInfo(SDL_LOG_CATEGORY_TEST, "Collision detected");
-                handle_collision(entityA,entityB);
-            }
-
-        }
-    }
-
-}
-
 
 /**
- * @brief Runs the main application loop.
- * @param entities Array of entities.
- * @param count Number of entities.
- * @param renderer SDL renderer.
+ * @brief Checks for collisions between entities
+ * @param entities Array of entities to check
+ * @param count Number of entities
+ * @param delta_time Time elapsed since last frame
+ */
+void check_collisions(Entity* entities, int count, float delta_time) {
+    for (int i = 0; i < count; ++i) {
+        for (int j = i + 1; j < count; ++j) {
+            Entity* entity_a = &entities[i];
+            Entity* entity_b = &entities[j];
+
+            if (is_colliding(entity_a, entity_b)) {
+                SDL_SetLogPriority(SDL_LOG_CATEGORY_TEST, SDL_LOG_PRIORITY_INFO);
+                SDL_LogInfo(SDL_LOG_CATEGORY_TEST, "Collision detected");
+                handle_collision(entity_a, entity_b);
+            }
+        }
+    }
+}
+
+/**
+ * @brief Runs the main application loop
+ * @param entities Array of entities
+ * @param count Number of entities
+ * @param renderer SDL renderer
  */
 void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
     bool running = true;
     SDL_Event e;
-    uint64_t lastTime = SDL_GetPerformanceCounter();
+    uint64_t last_time = SDL_GetPerformanceCounter();
 
+    // Create floor using Entity constructor
     float width = 100;
-    float x =  0;
-    float y = 1080-width;
-    Entity floor =  create_rect_physics_entity(x,y,1920,width,true,GREEN);
-
-    entities[count-1] = floor;
+    float x = 0;
+    float y = 1080 - width;
+    
+    auto floor_shape = std::make_unique<Rectangle>(1920, width, true);
+    auto floor_physics = std::make_unique<Rigid_Body>(1.0f, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
+    floor_physics->set_position(Vector2D{x, y});
+    
+    Entity floor(std::move(floor_shape), std::move(floor_physics), GREEN);
+    floor.collision_type = AABB_COLLISION;
+    
+    entities[count - 1] = floor;
 
     while (running) {
-        uint64_t currentTime = SDL_GetPerformanceCounter();
-        float deltaTime = (float)(currentTime - lastTime) / (float)SDL_GetPerformanceFrequency();
-        lastTime = currentTime;
+        uint64_t current_time = SDL_GetPerformanceCounter();
+        float delta_time = (float)(current_time - last_time) / (float)SDL_GetPerformanceFrequency();
+        last_time = current_time;
 
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_EVENT_QUIT) {
@@ -175,8 +175,8 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
         SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderClear(renderer);
 
-        update_physics(entities, count, deltaTime);
-        check_collisions(entities, count,deltaTime);
+        update_physics_simulation(entities, count, delta_time);
+        check_collisions(entities, count, delta_time);
 
         SDL_SetRenderDrawColor(renderer, RED.r, RED.g, RED.b, RED.a);
         render_entities(entities, count, renderer);
@@ -186,8 +186,7 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
 }
 
 int main(int argc, char** argv) {
-
-    initialise_collision_dispatch();
+    initialize_collision_system();
     initialize_sdl();
 
     SDL_Window* window = NULL;
@@ -195,10 +194,8 @@ int main(int argc, char** argv) {
     init_window_and_renderer(&window, &renderer);
 
     int count = 2;
-    Entity entities[count+1];
+    Entity entities[count + 1];
     create_circle_entities(entities, count);
-
-
 
     run_main_loop(entities, count, renderer);
 

@@ -12,77 +12,40 @@
 	 * @class Rectangle
 	 * @brief Represents a rectangle shape with width, height, and optional collision properties.
 	 */
-	Rectangle::Rectangle(float width, float height) {
-	    // Constructor to initialize a rectangle with width and height, without collision.
-	    this->has_collider = false;
-	    this->width = width;
-	    this->height = height;
-	}
+	Rectangle::Rectangle(float width, float height) 
+    : width(width), height(height) {
+    has_collision = false;
+}
 
-	/**
-	 * @brief Constructor to initialize a rectangle with width, height, and collision properties.
-	 * @param width The width of the rectangle.
-	 * @param height The height of the rectangle.
-	 * @param has_collision Whether the rectangle has collision enabled.
-	 */
-	Rectangle::Rectangle(float width, float height, bool has_collision) {
-	    if (!has_collision) {
-	        this->has_collider = false;
-	    } else {
-	        this->has_collider = true;
-	    }
-	    this->width = width;
-	    this->height = height;
-	}
+Rectangle::Rectangle(float width, float height, bool has_collision) 
+    : width(width), height(height) {
+    this->has_collision = has_collision;
+}
 
-	/**
-	 * @brief Gets the height of the rectangle.
-	 * @return The height of the rectangle.
-	 */
-	float Rectangle::get_height() {
-	    return this->height;
-	}
+ShapeType Rectangle::get_type() const {
+    return ShapeType::RECTANGLE;
+}
 
-	/**
-	 * @brief Gets the width of the rectangle.
-	 * @return The width of the rectangle.
-	 */
-	float Rectangle::get_width() {
-	    return this->width;
-	}
+Collision_Type Rectangle::get_collision_type() const {
+    return AABB_COLLISION;
+}
 
-	/**
-	 * @brief Sets the height of the rectangle.
-	 * @param height The new height value to set.
-	 */
-	void Rectangle::set_height(float height) {
-	    this->height = height;
-	}
+float Rectangle::get_area() const {
+    return width * height;
+}
 
-	/**
-	 * @brief Sets the width of the rectangle.
-	 * @param width The new width value to set.
-	 */
-	void Rectangle::set_width(float width) {
-	    this->width = width;
-	}
+float Rectangle::get_width() const {
+    return width;
+}
 
-	/**
-	 * @brief Gets the type of the shape.
-	 * @return The shape type, which is RECTANGLE for this class.
-	 */
-	Shape_Type Rectangle::getType() {
-	    return RECTANGLE;
-	}
+float Rectangle::get_height() const {
+    return height;
+}
 
-	/**
-	 * @brief Calculates the area of the rectangle.
-	 * @return The area of the rectangle (width * height).
-	 */
-	float Rectangle::get_area() {
-	    return this->height * this->width;
-	}
+void Rectangle::set_width(float new_width) {
+    width = new_width;
+}
 
-	Collision_Type Rectangle::get_collision_type() {
-		return AABB_COLLISION;
-	}
+void Rectangle::set_height(float new_height) {
+    height = new_height;
+}
