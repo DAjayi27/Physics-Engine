@@ -5,11 +5,8 @@
 #ifndef PHYSICS_COMPONENT_H
 #define PHYSICS_COMPONENT_H
 
-typedef enum Physics_Type Physics_Type;
+#include "core/vector.h"
 
-typedef struct Physics_Component Physics_Component;
-
-#include "rigid_body.h"
 
 
 enum Physics_Type{
@@ -19,14 +16,31 @@ enum Physics_Type{
     PHYSICS_PARTICLE
 };
 
-struct Physics_Component{
-    Physics_Type type;
-    union {
-        Rigid_Body rigid_body;
-    };
+class Physics_Component{
+
+public:
+	virtual ~Physics_Component() = default;
+	virtual void update(float deltaTime) = 0;
+	virtual Physics_Type get_type() = 0;
+	void set_velocity(Vector_2D v);
+	void set_velocity_y( float y);
+	void set_velocity_x( float x);
+	void set_position(Vector_2D v);
+	void set_position_y( float y);
+	void set_position_x( float x);
+	bool get_is_static();
+	Vector_2D get_velocity();
+	Vector_2D get_position();
+	void set_is_static(bool val);
+
+private:
+	Vector_2D position = {0,0};
+	Vector_2D velocity = {0,0};
+	bool is_static = false;
+
 };
 
-extern Physics_Component create_physics_component(Physics_Type type, Vector_2D velocity , Vector_2D acceleration , float mass);
+// extern Physics_Component create_physics_component(Physics_Type type, Vector_2D velocity , Vector_2D acceleration , float mass);
 
 
 

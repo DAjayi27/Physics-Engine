@@ -6,8 +6,8 @@
 #define PHYSICS_H
 
 #include "core/entity.h"
-#include "shapes/shape.h"
-#include  "core/vector.h"
+#include "physics/physics_component.h"
+#include "physics/rigid_body.h"
 
 extern void update_gravity_physics(Entity* entity, float dt);
 

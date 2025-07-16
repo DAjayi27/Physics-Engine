@@ -2,16 +2,8 @@
 // Created by AJYDAN on 02/05/2025.
 //
 
-#ifndef SHAPE_H
-#define SHAPE_H
-
-typedef struct Shape Shape;
-
-#include <stdbool.h>
-#include "circle.h"
-#include "rectangle.h"
+#pragma once
 #include "collision/collision_types.h"
-#include <SDL3/SDL.h>
 
 typedef enum shape_type{
     NO_SHAPE,
@@ -19,21 +11,19 @@ typedef enum shape_type{
     RECTANGLE,
     POLYGON,
     TRIANGLE
-}shape_type;
+}Shape_Type;
 
-struct Shape {
-    Collision_Type collision_type;
-    bool has_collider;
-    union {
-        Circle circle;
-        Rectangle rect;
-    };
+class Shape {
+
+	public:
+		virtual Shape_Type getType()  = 0;
+		virtual Collision_Type get_collision_type()  = 0;
+		virtual float get_area() = 0;
+		virtual  ~Shape() = default;
+
+	protected:
+		bool has_collider = false;
 
 };
 
 
-extern Shape create_circle(float radius,bool has_collision);
-extern Shape create_rect(float width,float height,bool has_collision);
-extern float get_area(Shape* shape);
-
-#endif //SHAPE_H

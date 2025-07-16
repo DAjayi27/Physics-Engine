@@ -2,24 +2,29 @@
 // Created by AJYDAN on 01/05/2025.
 //
 
-#ifndef RECTANGLE_H
-#define RECTANGLE_H
+#pragma once
+#include "shape.h"
 
-typedef struct Rectangle Rectangle;
+class Rectangle : public Shape{
 
-#include <stdbool.h>
-#include "core/vector.h"
-#include <SDL3/SDL.h>
+  float width;
+  float height;
 
-struct Rectangle {
-    float width;
-    float height;
+  public:
+		Rectangle(float width,float height);
+		Rectangle(float width,float height,bool has_collision);
+		void set_width(float width);
+		void set_height(float height);
+		float get_width();
+		float get_height();
+	  Shape_Type getType() override;
+		Collision_Type get_collision_type() override;
+		float get_area() override;
+
 };
 
-// extern Rectangle* new_rectangle(float x,float ,float width,float height,SDL_Color color);
-
-// extern bool destroy_rect(Rectangle* rectangle);
 
 
 
-#endif //RECTANGLE_H
+
+

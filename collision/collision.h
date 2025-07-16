@@ -5,8 +5,8 @@
 #ifndef COLLISION_H
 #define COLLISION_H
 #include <stdbool.h>
-#include "shapes/shape.h"
 #include "core/entity.h"
+#include <memory>
 
 
 

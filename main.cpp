@@ -10,14 +10,14 @@
 #include "core/entity.h"
 #include "physics/physics.h"
 #include "physics/physics_component.h"
-#include "physics/rigid_body.h"
 #include "rendering/renderer.h"
-#include "shapes/shape.h"
+
 
 #define GREEN (SDL_Color){0, 255, 0, 255}
 #define RED (SDL_Color){255, 0, 0, 255}
 #define WHITE (SDL_Color){255, 255, 255, 255}
 #define null NULL
+
 
 
 bool initialize_sdl() {
@@ -186,7 +186,7 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
 }
 
 int main(int argc, char** argv) {
-    initialise_render_dispatch();
+
     initialise_collision_dispatch();
     initialize_sdl();
 
