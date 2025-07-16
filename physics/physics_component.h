@@ -57,7 +57,3 @@ protected:
 
 // extern Physics_Component create_physics_component(Physics_Type type, Vector_2D velocity , Vector_2D acceleration , float mass);
 
-
-
-
-#endif //PHYSICS_COMPONENT_H
