@@ -16,6 +16,12 @@
 #include "shapes/rectangle.h"
 #include "physics/rigid_body.h"
 
+// Selective using declarations to reduce std:: prefixes
+using std::vector;
+using std::unique_ptr;
+using std::make_unique;
+using std::move;
+
 // Color definitions
 #define GREEN (SDL_Color){0, 255, 0, 255}
 #define RED (SDL_Color){255, 0, 0, 255}
@@ -55,7 +61,7 @@ void handle_input(Entity* entity) {
  * @param count Number of entities in the array
  * @param renderer SDL renderer
  */
-void render_entities(std::vector<std::unique_ptr<Entity>>& entities,SDL_Renderer* renderer) {
+void render_entities(vector<unique_ptr<Entity>>& entities, SDL_Renderer* renderer) {
     for (auto &entity : entities) {
     	Renderer::render_entity(entity.get(), renderer, nullptr, false);
     }
@@ -66,7 +72,7 @@ void render_entities(std::vector<std::unique_ptr<Entity>>& entities,SDL_Renderer
  * @param entities Array of entities to update
  * @param delta_time Time elapsed since last frame
  */
-void update_physics_simulation(std::vector<std::unique_ptr<Entity>>& entities, float delta_time) {
+void update_physics_simulation(vector<unique_ptr<Entity>>& entities, float delta_time) {
 
     for (auto &entity : entities) {
     	if (!entity || !entity->physics) {
@@ -99,7 +105,7 @@ void init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer) {
  * @param entities Array to fill with entities
  * @param count Number of entities to create
  */
-void create_circle_entities(std::vector<std::unique_ptr<Entity>>& entities, int count) {
+void create_circle_entities(vector<unique_ptr<Entity>>& entities, int count) {
     for (int i = 0; i < count; i++) {
         int radius = 10;
         float x = rand() % (1920 - 2 * radius) + radius;
@@ -108,16 +114,16 @@ void create_circle_entities(std::vector<std::unique_ptr<Entity>>& entities, int 
         float mass = 10.0f + ((float)rand() / RAND_MAX) * (50.0f - 10.0f);
         
         // Create shape
-        auto shape = std::make_unique<Circle>(radius);
+        auto shape = make_unique<Circle>(radius);
         
         // Create physics component
-        auto physics = std::make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},false, true);
+        auto physics = make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},false, true);
         
         // Set initial position
         physics->set_position(Vector2D{x, y});
         
         // Create entity using constructor
-        entities.push_back(std::move(std::make_unique<Entity>(std::move(shape), std::move(physics), color)));
+        entities.push_back(move(make_unique<Entity>(move(shape), move(physics), color)));
         entities[i]->collision_type = CIRCLE_COLLISION;
     }
 }
@@ -128,7 +134,7 @@ void create_circle_entities(std::vector<std::unique_ptr<Entity>>& entities, int 
  * @param count Number of entities
  * @param delta_time Time elapsed since last frame
  */
-void check_collisions(std::vector<std::unique_ptr<Entity>>& entities, float delta_time) {
+void check_collisions(vector<unique_ptr<Entity>>& entities, float delta_time) {
 
     for (auto &entity_a : entities) {
     	for (auto &entity_b : entities) {
@@ -152,7 +158,7 @@ void check_collisions(std::vector<std::unique_ptr<Entity>>& entities, float delt
  * @param count Number of entities
  * @param renderer SDL renderer
  */
-void run_main_loop(std::vector<std::unique_ptr<Entity>>& entities,SDL_Renderer* renderer) {
+void run_main_loop(vector<unique_ptr<Entity>>& entities, SDL_Renderer* renderer) {
     bool running = true;
     SDL_Event e;
     uint64_t last_time = SDL_GetPerformanceCounter();
@@ -162,14 +168,14 @@ void run_main_loop(std::vector<std::unique_ptr<Entity>>& entities,SDL_Renderer* 
     float x = 0;
     float y = 1080 - width;
     
-    auto floor_shape = std::make_unique<Rectangle>(1920, width, true);
-    auto floor_physics = std::make_unique<Rigid_Body>(1.0f, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
+    auto floor_shape = make_unique<Rectangle>(1920, width, true);
+    auto floor_physics = make_unique<Rigid_Body>(1.0f, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
     floor_physics->set_position(Vector2D{x, y});
     
-    std::unique_ptr<Entity> floor = std::make_unique<Entity>(std::move(floor_shape), std::move(floor_physics), GREEN);
+    unique_ptr<Entity> floor = make_unique<Entity>(move(floor_shape), move(floor_physics), GREEN);
     floor->collision_type = AABB_COLLISION;
     
-    entities.push_back(std::move(floor));
+    entities.push_back(move(floor));
 
     while (running) {
         uint64_t current_time = SDL_GetPerformanceCounter();
@@ -205,7 +211,7 @@ int main(int argc, char** argv) {
     init_window_and_renderer(&window, &renderer);
 
     int count = 20;
-		std::vector<std::unique_ptr<Entity>> entities;
+		vector<unique_ptr<Entity>> entities;
     create_circle_entities(entities, count);
 
     run_main_loop(entities, renderer);
