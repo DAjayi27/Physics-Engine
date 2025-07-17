@@ -2,27 +2,29 @@
 // Created by AJYDAN on 02/05/2025.
 //
 
-#ifndef CIRCLE_H
-#define CIRCLE_H
+#pragma once
 
-typedef struct Circle Circle;
-#include <SDL3/SDL_pixels.h>
+#include "shape.h"
 
+/**
+ * @brief Circle shape with radius-based geometry
+ * 
+ * Implements circular collision detection and area calculation
+ * using the mathematical properties of circles.
+ */
+class Circle : public Shape {
+private:
+    float radius = 1.0f;
 
-
-
-
-struct Circle {
-    float radius;
+public:
+    explicit Circle(float radius);
+    
+    // Core shape methods
+    ShapeType get_type() const override;
+    Collision_Type get_collision_type() const override;
+    float get_area() const override;
+    
+    // Circle-specific methods
+    float get_radius() const;
+    void set_radius(float radius);
 };
-
-
-
-
-extern Circle* new_circle(float radius,SDL_Color color);
-
-extern bool destroy_circle(Circle* rectangle);
-
-
-
-#endif //CIRCLE_H

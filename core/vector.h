@@ -2,21 +2,29 @@
 // Created by AJYDAN on 01/05/2025.
 //
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#pragma once
 
-typedef struct Vector_2D Vector_2D;
-
-struct Vector_2D{
+/**
+ * @brief 2D vector structure for mathematical operations
+ */
+typedef struct Vector2D {
     float x;
     float y;
-};
+} Vector2D;
 
+// Legacy compatibility
+typedef Vector2D Vector_2D;
 
-extern float vector_dist_sqr(Vector_2D point_a , Vector_2D point_b);
+// Vector operations
+Vector2D vector_add(Vector2D a, Vector2D b);
+Vector2D vector_subtract(Vector2D a, Vector2D b);
+Vector2D vector_scale(Vector2D vector, float scalar);
+float vector_magnitude(Vector2D vector);
+float vector_magnitude_squared(Vector2D vector);
+float vector_distance(Vector2D a, Vector2D b);
+float vector_distance_squared(Vector2D a, Vector2D b);
+float vector_dot(Vector2D a, Vector2D b);
+Vector2D vector_normalize(Vector2D vector);
 
-extern Vector_2D vector_add(Vector_2D point_a , Vector_2D point_b);
-
-extern Vector_2D vector_scale(Vector_2D point_a , float scale);
-
-#endif //VECTOR_H
+// Legacy function names for compatibility
+#define vector_dist_sqr vector_distance_squared

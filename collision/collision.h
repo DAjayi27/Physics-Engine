@@ -1,21 +1,35 @@
-//
-// Created by AJYDAN on 01/05/2025.
-//
+#pragma once
 
-#ifndef COLLISION_H
-#define COLLISION_H
-#include <stdbool.h>
-#include "shapes/shape.h"
 #include "core/entity.h"
+#include <memory>
 
+/**
+ * @brief Initializes the collision detection system
+ */
+void initialize_collision_system();
 
+/**
+ * @brief Checks if two entities are colliding
+ * @param entity_a First entity
+ * @param entity_b Second entity
+ * @return True if entities are colliding, false otherwise
+ */
+bool is_colliding(Entity* entity_a, Entity* entity_b);
 
-extern void initialise_collision_dispatch();
+/**
+ * @brief Performs axis-aligned bounding box collision detection
+ * @param entity_a First entity
+ * @param entity_b Second entity
+ * @return True if AABB collision detected, false otherwise
+ */
+bool aabb_collision(Entity* entity_a, Entity* entity_b);
 
-extern bool is_colliding (Entity* first_shape , Entity* second_shape);
+/**
+ * @brief Handles collision response between two entities
+ * @param entity_a First entity
+ * @param entity_b Second entity
+ */
+void handle_collision(Entity* entity_a, Entity* entity_b);
 
-extern bool aabb_collision(Entity* first_shape , Entity* second_shape);
-
-extern void handle_collision(Entity* entity_a , Entity* entity_b);
-
-#endif //COLLISION_H
+// Legacy compatibility
+#define initialise_collision_dispatch initialize_collision_system

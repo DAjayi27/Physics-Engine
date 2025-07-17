@@ -2,42 +2,55 @@
 // Created by AJYDAN on 02/05/2025.
 //
 
-#ifndef ENTITY_H
-#define ENTITY_H
+#pragma once
 
-typedef struct Entity Entity;
-
+#include <SDL3/SDL_pixels.h>
+#include <memory>
 #include "physics/physics_component.h"
 #include "shapes/shape.h"
 
-
-struct Entity {
-    Shape shape;
-    Physics_Component physics;
-    Vector_2D position;
+/**
+ * @brief Represents an entity in the physics simulation
+ * 
+ * An entity combines a shape, physics component, visual properties,
+ * and collision type into a single game object.
+ */
+class Entity {
+public:
+    std::unique_ptr<Shape> shape;
+    std::unique_ptr<Physics_Component> physics;
     SDL_Color color;
+    Collision_Type collision_type;
+
+    // Constructors
+    Entity();
+    Entity(std::unique_ptr<Shape> shape, 
+           std::unique_ptr<Physics_Component> physics, 
+           SDL_Color color);
+
+    // Position methods
+    Vector2D get_position() const;
+    void set_position(Vector2D position);
+    void set_position_x(float x);
+    void set_position_y(float y);
+
+    // Velocity methods
+    Vector2D get_velocity() const;
+    void set_velocity(Vector2D velocity);
+    void set_velocity_x(float x);
+    void set_velocity_y(float y);
+
+    // Physics state methods
+    bool is_static() const;
+    void set_static(bool is_static);
 };
 
-extern Entity create_entity(Shape shape, Physics_Component physics_component);
+// Entity factory functions
+Entity create_circle_entity(float x, float y, float radius, SDL_Color color, 
+                           PhysicsType physics_type, float mass);
+Entity create_rectangle_entity(float x, float y, float width, float height, 
+                              bool is_static, SDL_Color color);
 
-
-
-// Constructors For Rectangle Entities
-extern Entity create_rect_entity(float x,float y,float width,float height,bool has_collision,SDL_Color color);
-extern Entity create_rect_physics_entity(float x,float y,float width,float height,SDL_Color color,Physics_Type physics_type, Vector_2D velocity , Vector_2D acceleration , float mass);
-extern Entity create_rect_zero_entity(float x,float y,float width,float height,SDL_Color color,Physics_Type physics_type,float mass);
-
-// Constructors For Circle Entities
-extern Entity create_circle_entity(float x,float y,float radius,bool has_collision,SDL_Color color);
-extern Entity create_circle_physics_entity(float x,float y,float radius,SDL_Color color,Physics_Type physics_type, Vector_2D velocity , Vector_2D acceleration , float mass);
-extern Entity create_circle_zero_entity(float x,float y,float radius,SDL_Color color,Physics_Type physics_type, float mass);
-
-extern void set_mass(Entity entity,float mass);
-
-extern void set_acceleration(Entity entity,Vector_2D acceleration);
-
-extern void set_velocity(Entity entity,Vector_2D velocity);
-
-
-
-#endif //ENTITY_H
+// Legacy compatibility
+#define create_circle_zero_entity create_circle_entity
+#define create_rect_physics_entity create_rectangle_entity
