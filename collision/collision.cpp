@@ -9,6 +9,7 @@
 #include "shapes/circle.h"
 #include "shapes/rectangle.h"
 #include "core/vector.h"
+#include "physics/rigid_body.h"
 
 #define NO_OF_COLLISIONS 3
 typedef bool (*CollisionFunc)(Entity* a, Entity* b);
@@ -160,20 +161,25 @@ bool is_colliding(Entity* first_shape, Entity* second_shape) {
  * @param entity_b Second entity
  */
 void handle_collision(Entity* entity_a, Entity* entity_b) {
-    // Only handle collision if exactly one entity is kinematic
-    if ((entity_a->physics->get_type() == PhysicsType::KINEMATIC && 
-         entity_b->physics->get_type() != PhysicsType::KINEMATIC) ||
-        (entity_a->physics->get_type() != PhysicsType::KINEMATIC && 
-         entity_b->physics->get_type() == PhysicsType::KINEMATIC)) {
-        
-        Entity* stop_entity;
-        if (entity_a->physics->get_type() != PhysicsType::KINEMATIC) {
-            stop_entity = entity_a;
-        } else {
-            stop_entity = entity_b;
-        }
 
-        Vector2D zero = {0.0f, 0.0f};
-        stop_entity->physics->set_velocity(zero);
-    }
+	((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(false);
+	((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(false);
+	//
+	// if (entity_a->physics->is_static() || entity_b->physics->is_static() ) {
+	// 	Entity* dynamic_entity = nullptr;
+	//
+	// 	if (entity_a->physics->is_static()) {
+	// 		dynamic_entity = entity_b;
+	// 	}else {
+	// 		dynamic_entity = entity_a;
+	// 	}
+	//
+	// 	((Rigid_Body*)dynamic_entity->physics.get())->set_affected_by_gravity(false);
+	// }else {
+	// 	return;
+	// }
+
+
+
+
 }

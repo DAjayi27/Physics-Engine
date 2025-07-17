@@ -48,26 +48,13 @@ void Rigid_Body::update(float delta_time,float area) {
     // Apply gravity physics with drag forces if enabled
     if (affected_by_gravity) {
         update_gravity_physics(delta_time, area);
-    } else {
-        // Apply basic gravity without drag
-        const Vector2D gravity = {0.0f, 981.0f}; // 981 pixels/s²
-        acceleration = vector_add(acceleration, gravity);
-        
-        // Update velocity: v = v + a * dt
-        velocity = vector_add(velocity, vector_scale(acceleration, delta_time));
-        
-        // Update position: p = p + v * dt
-        position = vector_add(position, vector_scale(velocity, delta_time));
-        
-        // Reset acceleration for next frame
-        acceleration = {0.0f, 0.0f};
     }
 
-    // Apply friction
-    if (friction > 0.0f) {
-        Vector2D friction_force = vector_scale(velocity, -friction);
-        velocity = vector_add(velocity, vector_scale(friction_force, delta_time));
-    }
+    // // Apply friction
+    // if (friction > 0.0f) {
+    //     Vector2D friction_force = vector_scale(velocity, -friction);
+    //     velocity = vector_add(velocity, vector_scale(friction_force, delta_time));
+    // }
 }
 
 // Private method for gravity physics calculations

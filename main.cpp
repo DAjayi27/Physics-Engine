@@ -116,8 +116,8 @@ void create_circle_entities(vector<unique_ptr<Entity>>& entities, int count) {
         // Create shape
         auto shape = make_unique<Circle>(radius);
         
-        // Create physics component
-        auto physics = make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},false, true);
+        // Create physics component with gravity disabled
+        auto physics = make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f}, false, true);
         
         // Set initial position
         physics->set_position(Vector2D{x, y});
@@ -159,6 +159,11 @@ void check_collisions(vector<unique_ptr<Entity>>& entities, float delta_time) {
  * @param renderer SDL renderer
  */
 void run_main_loop(vector<unique_ptr<Entity>>& entities, SDL_Renderer* renderer) {
+
+	// for (auto &entity_a : entities) {
+	// 	dynamic_cast<Rigid_Body*>(entity_a->physics.get())->set_affected_by_gravity(true);
+	// }
+
     bool running = true;
     SDL_Event e;
     uint64_t last_time = SDL_GetPerformanceCounter();
@@ -210,7 +215,7 @@ int main(int argc, char** argv) {
     SDL_Renderer* renderer = NULL;
     init_window_and_renderer(&window, &renderer);
 
-    int count = 20;
+    int count = 2;
 		vector<unique_ptr<Entity>> entities;
     create_circle_entities(entities, count);
 
