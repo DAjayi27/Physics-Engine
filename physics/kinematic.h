@@ -13,6 +13,7 @@ private:
     bool affected_by_gravity = true;
     Vector2D acceleration{0.0f, 0.0f};
     float mass = 1.0f;
+		void update_gravity_physics(float delta_time, float area);
 
 public:
     // Constructors
@@ -21,7 +22,7 @@ public:
               bool is_static, bool affected_by_gravity);
 
     // Core physics methods
-    void update(float delta_time) override;
+    void update(float delta_time, float area) override;
     PhysicsType get_type() const override;
 
     // Property getters

@@ -173,26 +173,24 @@ namespace Renderer {
 
 	        render_dispatch_table[AABB_COLLISION] = render_rect;
 	        render_dispatch_table[CIRCLE_COLLISION] = render_circle_bresenham;
+	}
 
-	    }
+  /**
+   * @brief Renders an entity using the appropriate rendering function
+   * @param entity Pointer to the Entity to be rendered
+   * @param renderer Pointer to the SDL_Renderer used for rendering
+   * @param texture Optional SDL_Texture to render. If NULL, a default rendering method is used
+   * @param fill Boolean indicating whether the entity should be filled during rendering
+   */
+	void render_entity(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill) {
 
-	    /**
-	     * @brief Renders an entity using the appropriate rendering function
-	     * @param entity Pointer to the Entity to be rendered
-	     * @param renderer Pointer to the SDL_Renderer used for rendering
-	     * @param texture Optional SDL_Texture to render. If NULL, a default rendering method is used
-	     * @param fill Boolean indicating whether the entity should be filled during rendering
-	     */
-		void render_entity(Entity* entity, SDL_Renderer* renderer, SDL_Texture* texture, bool fill) {
+	  RenderFunc func = render_dispatch_table[entity->shape->get_collision_type()];
 
-	        RenderFunc func = render_dispatch_table[entity->shape->get_collision_type()];
-
-	        if (func) {
-	            func(entity, renderer, texture, fill);
-	        }
-	        else {
-	            fprintf(stderr, "Unsupported collision type combination\n");
-	        }
-
-	    }
+	  if (func) {
+	      func(entity, renderer, texture, fill);
+	  }
+	  else {
+	      fprintf(stderr, "Unsupported collision type combination\n");
+	  }
+	}
 }

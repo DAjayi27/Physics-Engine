@@ -20,7 +20,7 @@ public:
     Particle(float mass, Vector2D velocity, float lifetime, bool is_static);
 
     // Core physics methods
-    void update(float delta_time) override;
+    void update(float delta_time, float area) override;
     PhysicsType get_type() const override;
 
     // Property getters

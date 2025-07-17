@@ -18,7 +18,7 @@ void update_physics(Entity* entity, float delta_time) {
     }
 
     // Each physics component handles its own update logic
-    entity->physics->update(delta_time);
+    entity->physics->update(delta_time, entity->shape->get_area());
 }
 
 

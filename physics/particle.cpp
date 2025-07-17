@@ -27,7 +27,7 @@ Particle::Particle(float mass, Vector2D velocity, float lifetime, bool is_static
     this->static_object = is_static;
 }
 
-void Particle::update(float delta_time) {
+void Particle::update(float delta_time, float area) {
     if (static_object) {
         return;
     }

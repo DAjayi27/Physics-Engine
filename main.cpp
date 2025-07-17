@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL_main.h>
+#include <vector>
 
 #include "collision/collision.h"
 #include "core/entity.h"
@@ -54,21 +55,27 @@ void handle_input(Entity* entity) {
  * @param count Number of entities in the array
  * @param renderer SDL renderer
  */
-void render_entities(Entity* entities, int count, SDL_Renderer* renderer) {
-    for (int i = 0; i < count; ++i) {
-        Renderer::render_entity(&entities[i], renderer, nullptr, false);
+void render_entities(std::vector<std::unique_ptr<Entity>>& entities,SDL_Renderer* renderer) {
+    for (auto &entity : entities) {
+    	Renderer::render_entity(entity.get(), renderer, nullptr, false);
     }
 }
 
 /**
  * @brief Updates physics for an array of entities
  * @param entities Array of entities to update
- * @param count Number of entities in the array
  * @param delta_time Time elapsed since last frame
  */
-void update_physics_simulation(Entity* entities, int count, float delta_time) {
-    for (int i = 0; i < count; ++i) {
-        update_physics(&entities[i], delta_time);
+void update_physics_simulation(std::vector<std::unique_ptr<Entity>>& entities, float delta_time) {
+
+    for (auto &entity : entities) {
+    	if (!entity || !entity->physics) {
+    		return;
+    	}
+
+    	// Each physics component handles its own update logic
+    	entity->physics->update(delta_time, entity->shape->get_area());
+
     }
 }
 
@@ -92,7 +99,7 @@ void init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer) {
  * @param entities Array to fill with entities
  * @param count Number of entities to create
  */
-void create_circle_entities(Entity* entities, int count) {
+void create_circle_entities(std::vector<std::unique_ptr<Entity>>& entities, int count) {
     for (int i = 0; i < count; i++) {
         int radius = 10;
         float x = rand() % (1920 - 2 * radius) + radius;
@@ -110,8 +117,8 @@ void create_circle_entities(Entity* entities, int count) {
         physics->set_position(Vector2D{x, y});
         
         // Create entity using constructor
-        entities[i] = Entity(std::move(shape), std::move(physics), color);
-        entities[i].collision_type = CIRCLE_COLLISION;
+        entities.push_back(std::move(std::make_unique<Entity>(std::move(shape), std::move(physics), color)));
+        entities[i]->collision_type = CIRCLE_COLLISION;
     }
 }
 
@@ -121,18 +128,21 @@ void create_circle_entities(Entity* entities, int count) {
  * @param count Number of entities
  * @param delta_time Time elapsed since last frame
  */
-void check_collisions(Entity* entities, int count, float delta_time) {
-    for (int i = 0; i < count; ++i) {
-        for (int j = i + 1; j < count; ++j) {
-            Entity* entity_a = &entities[i];
-            Entity* entity_b = &entities[j];
+void check_collisions(std::vector<std::unique_ptr<Entity>>& entities, float delta_time) {
 
-            if (is_colliding(entity_a, entity_b)) {
-                SDL_SetLogPriority(SDL_LOG_CATEGORY_TEST, SDL_LOG_PRIORITY_INFO);
-                SDL_LogInfo(SDL_LOG_CATEGORY_TEST, "Collision detected");
-                handle_collision(entity_a, entity_b);
-            }
-        }
+    for (auto &entity_a : entities) {
+    	for (auto &entity_b : entities) {
+
+    		if (entity_a == entity_b) {
+    			continue;
+    		}
+
+    		if (is_colliding(entity_a.get(), entity_b.get())) {
+    			SDL_SetLogPriority(SDL_LOG_CATEGORY_TEST, SDL_LOG_PRIORITY_INFO);
+    			SDL_LogInfo(SDL_LOG_CATEGORY_TEST, "Collision detected");
+    			handle_collision(entity_a.get(), entity_b.get());
+    		}
+    	}
     }
 }
 
@@ -142,7 +152,7 @@ void check_collisions(Entity* entities, int count, float delta_time) {
  * @param count Number of entities
  * @param renderer SDL renderer
  */
-void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
+void run_main_loop(std::vector<std::unique_ptr<Entity>>& entities,SDL_Renderer* renderer) {
     bool running = true;
     SDL_Event e;
     uint64_t last_time = SDL_GetPerformanceCounter();
@@ -156,10 +166,10 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
     auto floor_physics = std::make_unique<Rigid_Body>(1.0f, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
     floor_physics->set_position(Vector2D{x, y});
     
-    Entity floor(std::move(floor_shape), std::move(floor_physics), GREEN);
-    floor.collision_type = AABB_COLLISION;
+    std::unique_ptr<Entity> floor = std::make_unique<Entity>(std::move(floor_shape), std::move(floor_physics), GREEN);
+    floor->collision_type = AABB_COLLISION;
     
-    entities[count - 1] = floor;
+    entities.push_back(std::move(floor));
 
     while (running) {
         uint64_t current_time = SDL_GetPerformanceCounter();
@@ -175,11 +185,11 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
         SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
         SDL_RenderClear(renderer);
 
-        update_physics_simulation(entities, count, delta_time);
-        check_collisions(entities, count, delta_time);
+        update_physics_simulation(entities, delta_time);
+        check_collisions(entities, delta_time);
 
         SDL_SetRenderDrawColor(renderer, RED.r, RED.g, RED.b, RED.a);
-        render_entities(entities, count, renderer);
+        render_entities(entities, renderer);
 
         SDL_RenderPresent(renderer);
     }
@@ -187,17 +197,18 @@ void run_main_loop(Entity* entities, int count, SDL_Renderer* renderer) {
 
 int main(int argc, char** argv) {
     initialize_collision_system();
+		Renderer::initialize_render_system();
     initialize_sdl();
 
     SDL_Window* window = NULL;
     SDL_Renderer* renderer = NULL;
     init_window_and_renderer(&window, &renderer);
 
-    int count = 2;
-    Entity entities[count + 1];
+    int count = 20;
+		std::vector<std::unique_ptr<Entity>> entities;
     create_circle_entities(entities, count);
 
-    run_main_loop(entities, count, renderer);
+    run_main_loop(entities, renderer);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

@@ -40,14 +40,14 @@ Rigid_Body::Rigid_Body(float mass, float friction, float restitution,
     this->affected_by_gravity = affected_by_gravity;
 }
 
-void Rigid_Body::update(float delta_time) {
+void Rigid_Body::update(float delta_time,float area) {
     if (static_object) {
         return;
     }
 
     // Apply gravity physics with drag forces if enabled
     if (affected_by_gravity) {
-        update_gravity_physics(delta_time, this->shape->get_area());
+        update_gravity_physics(delta_time, area);
     } else {
         // Apply basic gravity without drag
         const Vector2D gravity = {0.0f, 981.0f}; // 981 pixels/s²

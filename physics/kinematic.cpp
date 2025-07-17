@@ -19,13 +19,13 @@ Kinematic::Kinematic(float mass, Vector2D velocity, Vector2D acceleration,
     this->affected_by_gravity = affected_by_gravity;
 }
 
-void Kinematic::update(float delta_time) {
+void Kinematic::update(float delta_time, float area) {
     if (static_object) {
         return;
     }
 
     if (affected_by_gravity) {
-        update_gravity_physics(delta_time, this->shape->get_area());
+        update_gravity_physics(delta_time, area);
     }
 }
 

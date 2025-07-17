@@ -30,7 +30,7 @@ public:
     virtual ~Physics_Component() = default;
     
     // Core physics update
-    virtual void update(float delta_time) = 0;
+    virtual void update(float delta_time, float areaa) = 0;
     virtual PhysicsType get_type() const = 0;
     
     // Position methods
