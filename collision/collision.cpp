@@ -164,6 +164,17 @@ void handle_collision(Entity* entity_a, Entity* entity_b) {
 
 	((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(false);
 	((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(false);
+
+
+	if (!entity_a->is_static()) {
+		entity_a->physics->set_position_y(entity_a->physics->get_position().y - 100);
+	}
+
+
+	if (!entity_b->is_static()) {
+		entity_b->physics->set_position_y(entity_b->physics->get_position().y - 100);
+	}
+
 	//
 	// if (entity_a->physics->is_static() || entity_b->physics->is_static() ) {
 	// 	Entity* dynamic_entity = nullptr;

@@ -23,7 +23,8 @@ public:
     ShapeType get_type() const override;
     Collision_Type get_collision_type() const override;
     float get_area() const override;
-    
+    float get_area_normalised(int PPM) const override;
+
     // Circle-specific methods
     float get_radius() const;
     void set_radius(float radius);

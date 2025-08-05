@@ -16,6 +16,8 @@
  * and collision type into a single game object.
  */
 class Entity {
+private:
+	unsigned int entity_id;
 public:
     std::unique_ptr<Shape> shape;
     std::unique_ptr<Physics_Component> physics;
@@ -24,9 +26,12 @@ public:
 
     // Constructors
     Entity();
-    Entity(std::unique_ptr<Shape> shape, 
-           std::unique_ptr<Physics_Component> physics, 
-           SDL_Color color);
+    // Entity(std::unique_ptr<Shape> shape,
+    //        std::unique_ptr<Physics_Component> physics,
+    //        SDL_Color color);
+		Entity(unsigned int entity_id, std::unique_ptr<Shape> shape,
+				 std::unique_ptr<Physics_Component> physics,
+				 SDL_Color color);
 
     // Position methods
     Vector2D get_position() const;
