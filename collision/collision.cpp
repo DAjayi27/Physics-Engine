@@ -9,6 +9,7 @@
 #include "shapes/circle.h"
 #include "shapes/rectangle.h"
 #include "core/vector.h"
+#include "physics/rigid_body.h"
 
 #define NO_OF_COLLISIONS 3
 typedef bool (*CollisionFunc)(Entity* a, Entity* b);
@@ -121,21 +122,6 @@ extern bool circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
     return distance_sqr <= (radius * radius);
 }
 
-/**
- * @brief Initializes the collision detection system
- */
-void initialize_collision_system() {
-    for (int i = 0; i < NO_OF_COLLISIONS; ++i) {
-        for (int j = 0; j < NO_OF_COLLISIONS; ++j) {
-            dispatch_table[i][j] = nullptr;
-        }
-    }
-
-    dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
-    dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
-    dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
-    dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
-}
 
 /**
  * @brief Checks if two entities are colliding
@@ -160,20 +146,36 @@ bool is_colliding(Entity* first_shape, Entity* second_shape) {
  * @param entity_b Second entity
  */
 void handle_collision(Entity* entity_a, Entity* entity_b) {
-    // Only handle collision if exactly one entity is kinematic
-    if ((entity_a->physics->get_type() == PhysicsType::KINEMATIC && 
-         entity_b->physics->get_type() != PhysicsType::KINEMATIC) ||
-        (entity_a->physics->get_type() != PhysicsType::KINEMATIC && 
-         entity_b->physics->get_type() == PhysicsType::KINEMATIC)) {
-        
-        Entity* stop_entity;
-        if (entity_a->physics->get_type() != PhysicsType::KINEMATIC) {
-            stop_entity = entity_a;
-        } else {
-            stop_entity = entity_b;
-        }
 
-        Vector2D zero = {0.0f, 0.0f};
-        stop_entity->physics->set_velocity(zero);
-    }
+	((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(false);
+	((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(false);
+
+
+	if (!entity_a->is_static()) {
+		entity_a->physics->set_position_y(entity_a->physics->get_position().y - 100);
+	}
+
+
+	if (!entity_b->is_static()) {
+		entity_b->physics->set_position_y(entity_b->physics->get_position().y - 100);
+	}
+
+	//
+	// if (entity_a->physics->is_static() || entity_b->physics->is_static() ) {
+	// 	Entity* dynamic_entity = nullptr;
+	//
+	// 	if (entity_a->physics->is_static()) {
+	// 		dynamic_entity = entity_b;
+	// 	}else {
+	// 		dynamic_entity = entity_a;
+	// 	}
+	//
+	// 	((Rigid_Body*)dynamic_entity->physics.get())->set_affected_by_gravity(false);
+	// }else {
+	// 	return;
+	// }
+
+
+
+
 }

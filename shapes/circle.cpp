@@ -48,6 +48,16 @@
 	    return std::numbers::pi_v<float> * radius * radius;
 	}
 
+	/**
+		 * @brief Calculates the area of the circle.
+		 * @param PPM the Pixel Per Meter ratio
+		 * @details The radius is normalized by dividing by the PixelPerMeter ratio before calculating the area.
+		 * @return The area of the circle.
+		 */
+	float Circle::get_area_normalised(int PPM) const {
+			return std::numbers::pi_v<float> * (radius/PPM) * (radius/PPM);
+	}
+
 	Collision_Type Circle::get_collision_type() const {
 		return CIRCLE_COLLISION;
 	}

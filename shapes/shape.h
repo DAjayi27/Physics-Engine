@@ -34,7 +34,7 @@ public:
     virtual ShapeType get_type() const = 0;
     virtual Collision_Type get_collision_type() const = 0;
     virtual float get_area() const = 0;
-    
+		virtual float get_area_normalised(int PPM) const  = 0 ;
     // Collision detection
     bool has_collider() const;
 

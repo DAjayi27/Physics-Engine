@@ -15,13 +15,24 @@ Entity::Entity()
     , collision_type(NONE) {
 }
 
-Entity::Entity(std::unique_ptr<Shape> shape, 
-               std::unique_ptr<Physics_Component> physics, 
-               SDL_Color color)
-    : shape(std::move(shape))
-    , physics(std::move(physics))
-    , color(color)
-    , collision_type(NONE) {
+// Entity::Entity(std::unique_ptr<Shape> shape,
+//                std::unique_ptr<Physics_Component> physics,
+//                SDL_Color color)
+//     : shape(std::move(shape))
+//     , physics(std::move(physics))
+//     , color(color)
+//     , collision_type(NONE) {
+// }
+
+
+Entity::Entity(unsigned int id, std::unique_ptr<Shape> shape,
+							 std::unique_ptr<Physics_Component> physics,
+							 SDL_Color color)
+    :entity_id(id)
+		, shape(std::move(shape))
+		, physics(std::move(physics))
+		, color(color)
+		, collision_type(NONE) {
 }
 
 Vector2D Entity::get_position() const {
@@ -78,54 +89,54 @@ void Entity::set_static(bool is_static) {
     }
 }
 
-// Entity factory functions
-Entity create_circle_entity(float x, float y, float radius, SDL_Color color, 
-                           PhysicsType physics_type, float mass) {
-    auto shape = std::make_unique<Circle>(radius);
-    std::unique_ptr<Physics_Component> physics;
-    
-    switch (physics_type) {
-        case PhysicsType::RIGID_BODY:
-            physics = std::make_unique<Rigid_Body>(mass, 0.1f, 0.5f, 
-                                                  Vector2D{0.0f, 0.0f}, 
-                                                  Vector2D{0.0f, 0.0f}, 
-                                                  false, true);
-            break;
-        case PhysicsType::KINEMATIC:
-            physics = std::make_unique<Kinematic>(mass, Vector2D{0.0f, 0.0f}, 
-                                                 Vector2D{0.0f, 0.0f}, 
-                                                 false, true);
-            break;
-        case PhysicsType::PARTICLE:
-            physics = std::make_unique<Particle>(mass, Vector2D{0.0f, 0.0f}, 
-                                                1.0f, false);
-            break;
-        default:
-            physics = std::make_unique<Rigid_Body>();
-            break;
-    }
-    
-    physics->set_position(Vector2D{x, y});
-    
-    Entity entity(std::move(shape), std::move(physics), color);
-    entity.collision_type = CIRCLE_COLLISION;
-    return entity;
-}
+// // Entity factory functions
+// Entity create_circle_entity(float x, float y, float radius, SDL_Color color,
+//                            PhysicsType physics_type, float mass) {
+//     auto shape = std::make_unique<Circle>(radius);
+//     std::unique_ptr<Physics_Component> physics;
+//
+//     switch (physics_type) {
+//         case PhysicsType::RIGID_BODY:
+//             physics = std::make_unique<Rigid_Body>(mass, 0.1f, 0.5f,
+//                                                   Vector2D{0.0f, 0.0f},
+//                                                   Vector2D{0.0f, 0.0f},
+//                                                   false, true);
+//             break;
+//         case PhysicsType::KINEMATIC:
+//             physics = std::make_unique<Kinematic>(mass, Vector2D{0.0f, 0.0f},
+//                                                  Vector2D{0.0f, 0.0f},
+//                                                  false, true);
+//             break;
+//         case PhysicsType::PARTICLE:
+//             physics = std::make_unique<Particle>(mass, Vector2D{0.0f, 0.0f},
+//                                                 1.0f, false);
+//             break;
+//         default:
+//             physics = std::make_unique<Rigid_Body>();
+//             break;
+//     }
+//
+//     physics->set_position(Vector2D{x, y});
+//
+//     Entity entity(std::move(shape), std::move(physics), color);
+//     entity.collision_type = CIRCLE_COLLISION;
+//     return entity;
+// }
 
-Entity create_rectangle_entity(float x, float y, float width, float height, 
-                              bool is_static, SDL_Color color) {
-    auto shape = std::make_unique<Rectangle>(width, height, true);
-    auto physics = std::make_unique<Rigid_Body>(1.0f, 0.1f, 0.5f, 
-                                               Vector2D{0.0f, 0.0f}, 
-                                               Vector2D{0.0f, 0.0f}, 
-                                               is_static, false);
-    
-    physics->set_position(Vector2D{x, y});
-    
-    Entity entity(std::move(shape), std::move(physics), color);
-    entity.collision_type = AABB_COLLISION;
-    return entity;
-}
+// Entity create_rectangle_entity(float x, float y, float width, float height,
+//                               bool is_static, SDL_Color color) {
+//     auto shape = std::make_unique<Rectangle>(width, height, true);
+//     auto physics = std::make_unique<Rigid_Body>(1.0f, 0.1f, 0.5f,
+//                                                Vector2D{0.0f, 0.0f},
+//                                                Vector2D{0.0f, 0.0f},
+//                                                is_static, false);
+//
+//     physics->set_position(Vector2D{x, y});
+//
+//     Entity entity(std::move(shape), std::move(physics), color);
+//     entity.collision_type = AABB_COLLISION;
+//     return entity;
+// }
 
 
 

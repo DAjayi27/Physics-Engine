@@ -25,7 +25,7 @@ public:
     ShapeType get_type() const override;
     Collision_Type get_collision_type() const override;
     float get_area() const override;
-    
+		float get_area_normalised(int PPM) const override;
     // Rectangle-specific methods
     float get_width() const;
     float get_height() const;

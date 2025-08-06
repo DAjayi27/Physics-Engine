@@ -36,7 +36,10 @@ add_executable(Physics_Engine
         physics/kinematic.cpp
         physics/kinematic.h
         physics/particle.cpp
-        physics/particle.h)
+        physics/particle.h
+        engine/engine.h
+        core/world.h
+        core/world.cpp)
 
 # Link SDL3 to the executable
 target_link_libraries(Physics_Engine SDL3_image::SDL3_image)

@@ -48,57 +48,65 @@ void Rigid_Body::update(float delta_time,float area) {
     // Apply gravity physics with drag forces if enabled
     if (affected_by_gravity) {
         update_gravity_physics(delta_time, area);
-    } else {
-        // Apply basic gravity without drag
-        const Vector2D gravity = {0.0f, 981.0f}; // 981 pixels/s²
-        acceleration = vector_add(acceleration, gravity);
-        
-        // Update velocity: v = v + a * dt
-        velocity = vector_add(velocity, vector_scale(acceleration, delta_time));
-        
-        // Update position: p = p + v * dt
-        position = vector_add(position, vector_scale(velocity, delta_time));
-        
-        // Reset acceleration for next frame
-        acceleration = {0.0f, 0.0f};
     }
 
-    // Apply friction
-    if (friction > 0.0f) {
-        Vector2D friction_force = vector_scale(velocity, -friction);
-        velocity = vector_add(velocity, vector_scale(friction_force, delta_time));
-    }
+    // // Apply friction
+    // if (friction > 0.0f) {
+    //     Vector2D friction_force = vector_scale(velocity, -friction);
+    //     velocity = vector_add(velocity, vector_scale(friction_force, delta_time));
+    // }
 }
 
-// Private method for gravity physics calculations
+/**
+ *
+ * At each frame, drag or gravity physics for each object is being updated.
+ * It uses simple drag physics to preform frame time calculations.
+ * read (https://www.grc.nasa.gov/www/k-12/VirtualAero/BottleRocket/airplane/drageq.html) or
+ * watch (https://www.youtube.com/watch?v=ZgqJ5wQF944&ab_channel=Debunked) for more info
+ *
+ * @param entity the shape or entity being updated
+ * @param dt id the frame update time (time delay between each drawn frame)
+ *
+ * NOTE: there is a conversion btw px and meters at a rate of 100px = 1m
+ *
+ * Fd – Drag force;
+ *	ρ – Airs's density;
+ *	u – Relative velocity;
+ *	A – Reference area; and
+ *	Cd – Drag coefficient.
+ *
+ ***/
 void Rigid_Body::update_gravity_physics(float delta_time, float area) {
-    if (static_object || !affected_by_gravity) {
-        return;
-    }
+  if (static_object || !affected_by_gravity) {
+      return;
+  }
 
-    float velocity_y = velocity.y;
+  float velocity_y = velocity.y;
 
-    // Air drag: F_drag = -0.5 * ρ * A * v * |v|
-    float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y) * 0.47f;
+  // Air drag: Fd = 1/2 × ρ × u² × A × Cd
+  float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y) * 0.47f;
 
-    // Gravity
-    float gravitational_force = mass * 4.5f;
+  // Gravity
+  float gravitational_force = (mass) * (9.8f);
 
-    // Net force
-    float total_force = drag_force + gravitational_force;
+  // Net force
+  float total_force = drag_force + gravitational_force;
 
-    // Acceleration = F / m
-    float actual_acceleration = total_force / mass;
+  // Acceleration = F / m
+  float actual_acceleration = total_force / (mass);
 
-    // Position update: Δx = v₀ * dt + 0.5 * a * dt²
-    float new_position_offset = velocity.y * delta_time + 0.5f * actual_acceleration * delta_time * delta_time;
+  // Position update: Δx = v₀ * dt + 0.5 * a * dt²
+  float new_position_offset = velocity.y * delta_time + 0.5f * actual_acceleration * delta_time * delta_time;
 
-    // Velocity update: v = v₀ + a * dt
-    velocity.y += actual_acceleration * delta_time;
+  // Velocity update: v = v₀ + a * dt
+  velocity.y += actual_acceleration * delta_time;
 
-    // Update position
-    Vector2D new_velocity = {0.0f, new_position_offset * 100.0f};
-    position = vector_add(position, new_velocity);
+  // Update position
+  Vector2D new_velocity = {0.0f, new_position_offset };
+
+	Vector2D new_acceleration = vector_scale(vector_subtract(new_velocity,this->velocity),(1/delta_time)); // calc new acceleration;
+
+  position = vector_add(position, vector_scale(new_velocity,5));
 }
 
 PhysicsType Rigid_Body::get_type() const {

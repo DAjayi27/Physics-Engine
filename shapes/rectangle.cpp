@@ -34,6 +34,17 @@ float Rectangle::get_area() const {
     return width * height;
 }
 
+
+/**
+	 * @brief Calculates the area of the circle.
+	 * @param PPM the Pixel Per Meter ratio
+	 * @details The radius is normalized by dividing by the PixelPerMeter ratio before calculating the area.
+	 * @return The area of the circle.
+	 */
+float Rectangle::get_area_normalised(int PPM) const {
+		return (width/PPM) * (height/PPM);
+	}
+
 float Rectangle::get_width() const {
     return width;
 }
