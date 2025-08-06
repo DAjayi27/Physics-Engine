@@ -17,7 +17,7 @@
  */
 class Entity {
 private:
-	unsigned int entity_id;
+	uint64_t entity_id;
 public:
     std::unique_ptr<Shape> shape;
     std::unique_ptr<Physics_Component> physics;

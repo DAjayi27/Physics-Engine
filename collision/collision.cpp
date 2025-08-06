@@ -122,21 +122,6 @@ extern bool circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
     return distance_sqr <= (radius * radius);
 }
 
-/**
- * @brief Initializes the collision detection system
- */
-void initialize_collision_system() {
-    for (int i = 0; i < NO_OF_COLLISIONS; ++i) {
-        for (int j = 0; j < NO_OF_COLLISIONS; ++j) {
-            dispatch_table[i][j] = nullptr;
-        }
-    }
-
-    dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
-    dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
-    dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
-    dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
-}
 
 /**
  * @brief Checks if two entities are colliding
