@@ -14,6 +14,7 @@ World::World() {
 bool World::init() {
 
 	Renderer::initialize_render_system();
+	initialize_collision_system();
 	if (!initialize_sdl()) {
 		return false;
 	}
@@ -42,6 +43,8 @@ void World::addEntities(vector<unique_ptr<Entity>>& entities) {
 
 
 void World::update() {
+
+	this->check_collisions();
 
 	uint64_t current_time = SDL_GetPerformanceCounter();
 	float delta_time = (float)(current_time - last_time) / (float)SDL_GetPerformanceFrequency();
@@ -122,7 +125,7 @@ void World::update_physics_simulation(float delta_time) {
  * @param count Number of entities
  * @param delta_time Time elapsed since last frame
  */
-void World::check_collisions(float delta_timem ) {
+void World::check_collisions() {
 
 	for (size_t i = 0; i < entities.size(); ++i) {
 		for (size_t j = i + 1; j < entities.size(); ++j) {
@@ -130,29 +133,37 @@ void World::check_collisions(float delta_timem ) {
 			auto& entity_a = entities[i];
 			auto& entity_b = entities[j];
 
-			if (is_colliding(entity_a.get(), entity_b.get())) {
-				handle_collision(entity_a.get(), entity_b.get());
-				Colliding_Entities entry(entity_a.get(), entity_b.get());
-				currently_colliding_entities.push_back(entry);
+			Vector2D collision_normal = is_colliding( entity_a.get(), entity_b.get() );
+
+			if ( collision_normal.x != 0 || collision_normal.y != 0   ) {
+
+				handle_collision(entity_a.get(), entity_b.get(),collision_normal);
+
+				currently_colliding_entities.insert(this->generate_pairing(entity_a->entity_id , entity_b->entity_id));
 				continue;
 			}
 
-			Colliding_Entities tuple(entity_a.get(), entity_b.get());
 
-			auto iterator = find_if(prev_colliding_entities.begin(), prev_colliding_entities.end(),
-				[&tuple](Colliding_Entities& entry) {
-						bool first_is_same = std::get<0>(entry) == std::get<0>(tuple);
-						bool second_is_same = std::get<1>(entry) == std::get<1>(tuple);
-						return first_is_same && second_is_same;
-				}
-			);
+			handle_collision_exit(entity_a,entity_b);
 
-			if (iterator != prev_colliding_entities.end()) {
-				((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(true);
-				((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(true);
-			}
 		}
 	}
+
+}
+
+uint64_t World:: generate_pairing (uint32_t first_id ,  uint32_t second_id) {
+	return (uint64_t)std::min(first_id,second_id) << 32 | std::max(first_id,second_id);
+}
+
+void World::handle_collision_exit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b ) {
+
+	uint64_t paired_id = this->generate_pairing(entity_a->entity_id , entity_b->entity_id);
+
+	if (prev_colliding_entities.contains(paired_id)) {
+		((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(true);
+		((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(true);
+	}
+
 }
 
 

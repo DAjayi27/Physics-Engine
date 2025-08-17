@@ -17,37 +17,38 @@
  */
 class Entity {
 private:
-	uint64_t entity_id;
+
 public:
-    std::unique_ptr<Shape> shape;
-    std::unique_ptr<Physics_Component> physics;
-    SDL_Color color;
-    Collision_Type collision_type;
+	uint64_t entity_id;
+  std::unique_ptr<Shape> shape;
+  std::unique_ptr<Physics_Component> physics;
+  SDL_Color color;
+  Collision_Type collision_type;
 
-    // Constructors
-    Entity();
-    // Entity(std::unique_ptr<Shape> shape,
-    //        std::unique_ptr<Physics_Component> physics,
-    //        SDL_Color color);
-		Entity(unsigned int entity_id, std::unique_ptr<Shape> shape,
-				 std::unique_ptr<Physics_Component> physics,
-				 SDL_Color color);
+  // Constructors
+  Entity();
+  // Entity(std::unique_ptr<Shape> shape,
+  //        std::unique_ptr<Physics_Component> physics,
+  //        SDL_Color color);
+	Entity(unsigned int entity_id, std::unique_ptr<Shape> shape,
+			 std::unique_ptr<Physics_Component> physics,
+			 SDL_Color color);
 
-    // Position methods
-    Vector2D get_position() const;
-    void set_position(Vector2D position);
-    void set_position_x(float x);
-    void set_position_y(float y);
+  // Position methods
+  Vector2D get_position() const;
+  void set_position(Vector2D position);
+  void set_position_x(float x);
+  void set_position_y(float y);
 
-    // Velocity methods
-    Vector2D get_velocity() const;
-    void set_velocity(Vector2D velocity);
-    void set_velocity_x(float x);
-    void set_velocity_y(float y);
+  // Velocity methods
+  Vector2D get_velocity() const;
+  void set_velocity(Vector2D velocity);
+  void set_velocity_x(float x);
+  void set_velocity_y(float y);
 
-    // Physics state methods
-    bool is_static() const;
-    void set_static(bool is_static);
+  // Physics state methods
+  bool is_static() const;
+  void set_static(bool is_static);
 };
 
 // Entity factory functions

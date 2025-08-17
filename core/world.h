@@ -6,6 +6,8 @@
 #include <vector>
 #include "entity.h"
 #include <SDL3/SDL.h>
+#include <set>
+#include <cmath>
 #include <SDL3_image/SDL_image.h>
 
 
@@ -13,10 +15,8 @@ using std::vector;
 using std::unique_ptr;
 using std::make_unique;
 using std::move;
-using std::tuple;
-using std::tuple;
+using std::set;
 using Entity_List  = vector<unique_ptr<Entity>>;
-using Colliding_Entities = tuple<Entity*,Entity*>;
 using std::find_if;
 
 class World {
@@ -35,8 +35,9 @@ public:
 private:
 
 	vector<unique_ptr<Entity>> entities;
-	vector<Colliding_Entities> currently_colliding_entities;
-	vector<Colliding_Entities> prev_colliding_entities;
+	set<uint64_t> currently_colliding_entities;
+	set<uint64_t> prev_colliding_entities;
+
 	float gravity = 9.8f; // or use a vector for 2D gravity
 	SDL_Window* window;
 	SDL_Renderer* renderer;
@@ -47,5 +48,7 @@ private:
 	bool initialize_sdl();
 	void init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer);
 	void update_physics_simulation(float delta_time);
-	void check_collisions(float delta_time );
+	void check_collisions();
+	uint64_t generate_pairing (uint32_t first_id ,  uint32_t second_id);
+	void handle_collision_exit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b );
 };

@@ -6,13 +6,15 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <bits/stl_algo.h>
+
 #include "shapes/circle.h"
 #include "shapes/rectangle.h"
 #include "core/vector.h"
 #include "physics/rigid_body.h"
 
 #define NO_OF_COLLISIONS 3
-typedef bool (*CollisionFunc)(Entity* a, Entity* b);
+typedef Vector2D (*CollisionFunc)(Entity* a, Entity* b);
 
 static CollisionFunc dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS];
 
@@ -22,20 +24,50 @@ static CollisionFunc dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS];
  * @param second_shape Second entity
  * @return True if AABB collision detected, false otherwise
  */
-bool aabb_collision(Entity* first_shape, Entity* second_shape) {
-    if (first_shape->shape->get_collision_type() != AABB_COLLISION || 
-        second_shape->shape->get_collision_type() != AABB_COLLISION) {
-        fprintf(stderr, "Non rectangle collider shape passed to rectangle on rectangle collider");
-        return false;
-    }
+extern Vector2D aabb_collision(Entity* first_shape, Entity* second_shape) {
+
+	if (first_shape->shape->get_collision_type() != AABB_COLLISION ||second_shape->shape->get_collision_type() != AABB_COLLISION) {
+		fprintf(stderr, "Non rectangle collider shape passed to rectangle on rectangle collider");
+		return Vector2D{0,0};
+	}
 
 	Rectangle* first_rect = ((Rectangle*)first_shape->shape.get());
 	Rectangle* second_rect = ((Rectangle*)second_shape->shape.get());
 
-    return (first_shape->get_position().x < second_shape->get_position().x + second_rect->get_width() &&
-            first_shape->get_position().x + first_rect->get_width() > second_shape->get_position().x &&
-            first_shape->get_position().y < second_shape->get_position().y + second_rect->get_height() &&
-            first_shape->get_position().y + first_rect->get_height() > second_shape->get_position().y);
+	// Check collision
+	bool is_colliding =  (
+		first_shape->get_position().x < second_shape->get_position().x + second_rect->get_width() &&
+		first_shape->get_position().x + first_rect->get_width() > second_shape->get_position().x &&
+		first_shape->get_position().y < second_shape->get_position().y + second_rect->get_height() &&
+		first_shape->get_position().y + first_rect->get_height() > second_shape->get_position().y
+	);
+
+	if (is_colliding) {
+		// Centers of rectangles
+		Vector2D c1(first_shape->get_position().x + first_rect->get_width()/2,first_shape->get_position().y + first_rect->get_height()/2);
+		Vector2D c2(second_shape->get_position().x + second_rect->get_width()/2,second_shape->get_position().y + second_rect->get_height()/2);
+
+		// Difference vector
+		float dx = c2.x - c1.x;
+		float dy = c2.y - c1.y;
+
+		// Half-size sums
+		float px = (first_rect->get_width()/2 + second_rect->get_width()/2) - std::abs(dx);
+		float py = (first_rect->get_height()/2 + second_rect->get_height()/2) - std::abs(dy);
+
+		// Axis of least penetration → collision normal
+		Vector2D collision_normal;
+		if (px < py) {
+			collision_normal = Vector2D((dx < 0) ? -1 : 1, 0); // horizontal normal
+		} else {
+			collision_normal = Vector2D(0, (dy > 0) ? 1 : -1);// vertical normal
+		}
+
+		// collision_normal now points from first rectangle to second rectangle
+		return collision_normal;
+	}
+
+	return Vector2D{0,0}; // No collision
 }
 
 /**
@@ -44,11 +76,11 @@ bool aabb_collision(Entity* first_shape, Entity* second_shape) {
  * @param second_shape Second entity
  * @return True if circle collision detected, false otherwise
  */
-bool circle_collision(Entity* first_shape, Entity* second_shape) {
+extern Vector2D circle_collision(Entity* first_shape, Entity* second_shape) {
   if (first_shape->shape->get_collision_type() != CIRCLE_COLLISION || 
     second_shape->shape->get_collision_type() != CIRCLE_COLLISION) {
     fprintf(stderr, "Non circle collider shape passed to circle on circle collider");
-    return false;
+    return Vector2D{0,0};
   }
 
 	Circle* first_circle =  (Circle*)first_shape->shape.get();
@@ -57,7 +89,15 @@ bool circle_collision(Entity* first_shape, Entity* second_shape) {
   float distance_sqr = vector_distance_squared(first_shape->get_position(), second_shape->get_position());
   float radius_sum = first_circle->get_radius() + second_circle->get_radius();
 
-    return distance_sqr <= (radius_sum * radius_sum);
+	if (distance_sqr <= (radius_sum * radius_sum)) {
+
+		Vector2D collision_vector = {first_shape->get_position().x - second_shape->get_position().x ,
+			first_shape->get_position().y - second_shape->get_position().y};
+
+		return vector_normalize(collision_vector);
+	}else {
+		return Vector2D{0,0};
+	}
 }
 
 /**
@@ -69,57 +109,66 @@ bool circle_collision(Entity* first_shape, Entity* second_shape) {
  * @param first_shape The first shape being compared
  * @param second_shape the second shape being compared
  *
- * @return true if a collision has occurred, and false if it hasn't
+ * @return a normalised collision vector between the two entities if a collision occurs or a zero vector if no collision occurs
  *
  ***/
-extern bool circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
+extern Vector2D circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
 
- // determine which one is the circle and which one is the rectangle.
+	// determine which one is the circle and which one is the rectangle.
 
- // make sure they don't have the same collisions
- if (first_shape->shape->get_collision_type() == second_shape->shape->get_collision_type()) {
-  fprintf(stderr, "Warning: Circle on AABB Collision function, passed shapes of same collision type.\n Please ensure the two shapes are not the same type.\n");
-  return false;
- }
+	// make sure they don't have the same collisions
+	if (first_shape->shape->get_collision_type() == second_shape->shape->get_collision_type()) {
+	fprintf(stderr, "Warning: Circle on AABB Collision function, passed shapes of same collision type.\n Please ensure the two shapes are not the same type.\n");
+	return Vector2D{0,0};
+	}
 
-  if ((first_shape->shape->get_collision_type() != AABB_COLLISION && 
-        first_shape->shape->get_collision_type() != CIRCLE_COLLISION) ||
-      (second_shape->shape->get_collision_type() != AABB_COLLISION && 
-        second_shape->shape->get_collision_type() != CIRCLE_COLLISION)) {
-      fprintf(stderr, "Non rectangle or circle shape passed to rectangle on circle collider");
-      return false;
-  }
+	if ((first_shape->shape->get_collision_type() != AABB_COLLISION &&
+	      first_shape->shape->get_collision_type() != CIRCLE_COLLISION) ||
+	    (second_shape->shape->get_collision_type() != AABB_COLLISION &&
+	      second_shape->shape->get_collision_type() != CIRCLE_COLLISION)) {
+	    fprintf(stderr, "Non rectangle or circle shape passed to rectangle on circle collider");
+	    return Vector2D{0,0};
+	}
 
-  Entity* circle;
-  Entity* rect;
+	Entity* circle;
+	Entity* rect;
 
-  if (first_shape->shape->get_collision_type() == CIRCLE_COLLISION) {
-      circle = first_shape;
-      rect = second_shape;
-  } else if (second_shape->shape->get_collision_type() == CIRCLE_COLLISION) {
-      circle = second_shape;
-      rect = first_shape;
-  } else {
-      return false;
-  }
+	if (first_shape->shape->get_collision_type() == CIRCLE_COLLISION) {
+	    circle = first_shape;
+	    rect = second_shape;
+	} else if (second_shape->shape->get_collision_type() == CIRCLE_COLLISION) {
+	    circle = second_shape;
+	    rect = first_shape;
+	} else {
+		return Vector2D{0,0};;
+	}
 
 
- // check for collision
+	// check for collision
 
- float rect_min_x = rect->get_position().x;
- float rect_max_x = rect->get_position().x + ((Rectangle*)rect->shape.get())->get_width();
+	float rect_min_x = rect->get_position().x;
+	float rect_max_x = rect->get_position().x + ((Rectangle*)rect->shape.get())->get_width();
 
- float rect_min_y = rect->get_position().y;
- float rect_max_y = rect->get_position().y + ((Rectangle*)rect->shape.get())->get_height();
+	float rect_min_y = rect->get_position().y;
+	float rect_max_y = rect->get_position().y + ((Rectangle*)rect->shape.get())->get_height();
 
-    float rec_closest_x = fminf(fmaxf(rect_min_x, circle->get_position().x), rect_max_x);
-    float rec_closest_y = fminf(fmaxf(rect_min_y, circle->get_position().y), rect_max_y);
+	float rec_closest_x = std::clamp(circle->get_position().x, rect_min_x, rect_max_x);
+	float rec_closest_y = std::clamp(circle->get_position().y, rect_min_y, rect_max_y);
 
-    Vector2D point = {rec_closest_x, rec_closest_y};
-    float distance_sqr = vector_distance_squared(point, circle->get_position());
-    float radius = dynamic_cast<Circle*>(circle->shape.get())->get_radius();
 
-    return distance_sqr <= (radius * radius);
+	Vector2D point = {rec_closest_x, rec_closest_y};
+	float distance_sqr = vector_distance_squared(point, circle->get_position());
+	float radius = dynamic_cast<Circle*>(circle->shape.get())->get_radius();
+
+	bool is_colliding =  distance_sqr <= (radius * radius);
+
+	if (is_colliding) {
+		Vector2D collision_vector = {rec_closest_x - circle->get_position().x , rec_closest_y - circle->get_position().y};
+		Vector2D collision_normal = vector_normalize(collision_vector);
+		return  collision_normal;
+	}else{
+		return Vector2D{0,0};;
+	}
 }
 
 
@@ -129,14 +178,14 @@ extern bool circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
  * @param second_shape Second entity
  * @return True if entities are colliding, false otherwise
  */
-bool is_colliding(Entity* first_shape, Entity* second_shape) {
+Vector2D is_colliding(Entity* first_shape, Entity* second_shape) {
     CollisionFunc func = dispatch_table[first_shape->shape->get_collision_type()][second_shape->shape->get_collision_type()];
 
     if (func) {
         return func(first_shape, second_shape);
     } else {
         fprintf(stderr, "Unsupported collision type combination\n");
-        return false;
+        return Vector2D{0,0};
     }
 }
 
@@ -145,37 +194,55 @@ bool is_colliding(Entity* first_shape, Entity* second_shape) {
  * @param entity_a First entity
  * @param entity_b Second entity
  */
-void handle_collision(Entity* entity_a, Entity* entity_b) {
+void handle_collision(Entity* entity_a, Entity* entity_b,Vector2D collision_normal) {
+	Rigid_Body* bodyA = static_cast<Rigid_Body*>(entity_a->physics.get());
+	Rigid_Body* bodyB = static_cast<Rigid_Body*>(entity_b->physics.get());
 
-	((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(false);
-	((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(false);
+	// Step 1: Relative velocity
+	Vector2D rv = vector_subtract(bodyB->get_velocity(), bodyA->get_velocity());
 
+	// Step 2: Relative velocity along the normal
+	float velAlongNormal = vector_dot(rv, collision_normal);
 
-	if (!entity_a->is_static()) {
-		entity_a->physics->set_position_y(entity_a->physics->get_position().y - 100);
+	if (velAlongNormal > 0) {
+		// normal might be backward; flip it if needed
+		collision_normal = vector_scale(collision_normal, -1.0f);
+		velAlongNormal = -velAlongNormal;
 	}
 
+	// Step 3: Coefficient of restitution
+	float e = std::min(bodyA->get_restitution(), bodyB->get_restitution());
 
-	if (!entity_b->is_static()) {
-		entity_b->physics->set_position_y(entity_b->physics->get_position().y - 100);
+	// Step 4: Compute inverse masses safely
+	float invMassA = (bodyA->get_mass() > 0.0f) ? 1.0f / bodyA->get_mass() : 0.0f;
+	float invMassB = (bodyB->get_mass() > 0.0f) ? 1.0f / bodyB->get_mass() : 0.0f;
+
+	float invMassSum = invMassA + invMassB;
+	if (invMassSum == 0.0f) return; // both bodies are static, no impulse
+
+	// Step 5: Impulse scalar
+	float j = -(1.0f + e) * velAlongNormal / invMassSum;
+
+	// Step 6: Impulse vector
+	Vector2D impulse = vector_scale(collision_normal, j);
+
+	// Step 7: Apply impulse
+	bodyA->set_velocity(vector_subtract(bodyA->get_velocity(), vector_scale(impulse, invMassA)));
+	bodyB->set_velocity(vector_add(bodyB->get_velocity(), vector_scale(impulse, invMassB)));
+}
+
+/**
+ * @brief Initializes the collision detection system
+ */
+void initialize_collision_system() {
+	for (int i = 0; i < NO_OF_COLLISIONS; ++i) {
+		for (int j = 0; j < NO_OF_COLLISIONS; ++j) {
+			dispatch_table[i][j] = nullptr;
+		}
 	}
 
-	//
-	// if (entity_a->physics->is_static() || entity_b->physics->is_static() ) {
-	// 	Entity* dynamic_entity = nullptr;
-	//
-	// 	if (entity_a->physics->is_static()) {
-	// 		dynamic_entity = entity_b;
-	// 	}else {
-	// 		dynamic_entity = entity_a;
-	// 	}
-	//
-	// 	((Rigid_Body*)dynamic_entity->physics.get())->set_affected_by_gravity(false);
-	// }else {
-	// 	return;
-	// }
-
-
-
-
+	dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
+	dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
+	dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
+	dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
 }
