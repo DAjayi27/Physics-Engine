@@ -8,7 +8,7 @@ SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(.)
 
 find_package(SDL3 REQUIRED)
-find_package(SDL3_image REQUIRED)
+#find_package(SDL3_image REQUIRED)
 
 add_executable(Physics_Engine
         main.cpp
@@ -42,5 +42,5 @@ add_executable(Physics_Engine
         core/world.cpp)
 
 # Link SDL3 to the executable
-target_link_libraries(Physics_Engine SDL3_image::SDL3_image)
+#target_link_libraries(Physics_Engine SDL3_image::SDL3_image)
 target_link_libraries(Physics_Engine SDL3::SDL3)
