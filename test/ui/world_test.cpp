@@ -36,4 +36,3 @@ TEST_F(WorldTest, QuitReturnsTrue) {
     world.init();
     EXPECT_TRUE(world.quit());
 }
-

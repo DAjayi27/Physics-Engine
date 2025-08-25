@@ -67,4 +67,3 @@ TEST_F(EntityTest, GetPositionReturnsZeroIfNoPhysics) {
     EXPECT_FLOAT_EQ(pos.x, 0.0f);
     EXPECT_FLOAT_EQ(pos.y, 0.0f);
 }
-

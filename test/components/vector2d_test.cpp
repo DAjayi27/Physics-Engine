@@ -66,4 +66,3 @@ TEST(Vector2D, NormalizeZero) {
     EXPECT_FLOAT_EQ(n.x, 0.0f);
     EXPECT_FLOAT_EQ(n.y, 0.0f);
 }
-
