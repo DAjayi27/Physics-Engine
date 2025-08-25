@@ -51,7 +51,13 @@ add_executable(Physics_Engine
         src/physics/particle.h
         src/engine/engine.h
         src/core/world.h
-        src/core/world.cpp)
+        src/core/world.cpp
+        src/ui/ui_popup.cpp
+        src/ui/ui_popup.h
+        src/ui/ui_component.cpp
+        src/ui/ui_component.h
+        src/core/ui_manager.cpp
+        src/core/ui_manager.h)
 
 # Link SDL3 to the app
 #target_link_libraries(Physics_Engine SDL3_image::SDL3_image)
@@ -128,6 +134,8 @@ add_executable(Physics_Engine_UI_Tests
         src/core/entity.h
         src/rendering/renderer.cpp
         src/rendering/renderer.h
+        src/ui/ui_popup.cpp
+        src/ui/ui_popup.h
 )
 
 target_link_libraries(Physics_Engine_UI_Tests GTest::gtest_main SDL3::SDL3)
@@ -173,6 +181,8 @@ add_executable(Physics_Engine_ALL_TESTS
         src/core/entity.h
         src/rendering/renderer.cpp
         src/rendering/renderer.h
+        src/ui/ui_popup.cpp
+        src/ui/ui_popup.h
 )
 
 target_link_libraries(Physics_Engine_ALL_TESTS GTest::gtest_main SDL3::SDL3)
