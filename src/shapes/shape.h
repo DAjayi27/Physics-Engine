@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "collision/collision_types.h"
+#include "src/collision/collision_types.h"
 
 /**
  * @brief Enumeration of shape types

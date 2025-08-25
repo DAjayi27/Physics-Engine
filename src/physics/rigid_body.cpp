@@ -3,7 +3,7 @@
 //
 
 #include "rigid_body.h"
-#include "core/vector.h"
+#include "src/core/vector.h"
 #include <math.h>
 
 /**

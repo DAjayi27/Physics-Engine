@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "core/vector.h"
+#include "src/core/vector.h"
 
 /**
  * @brief Enumeration of physics component types
