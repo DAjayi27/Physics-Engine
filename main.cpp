@@ -142,11 +142,20 @@ int main(int argc, char** argv) {
 
 	world->addEntity(move(floor));
 
-	while (true) {
+	SDL_Event e;
 
-		world->update();
-		world->render();
+	bool running = true;
+	while (running) {
 
+		while (SDL_PollEvent(&e)) {
+			if (e.type == SDL_EVENT_QUIT) {
+				running = false;
+			}
+		}
+
+
+		world->update();  // your physics update
+		world->render();  // your render function
 	}
 
 

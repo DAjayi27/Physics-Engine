@@ -44,8 +44,6 @@ void World::addEntities(vector<unique_ptr<Entity>>& entities) {
 
 void World::update() {
 
-	this->check_collisions();
-
 	uint64_t current_time = SDL_GetPerformanceCounter();
 	float delta_time = (float)(current_time - last_time) / (float)SDL_GetPerformanceFrequency();
 	last_time = current_time;
@@ -55,7 +53,8 @@ void World::update() {
 		this->currently_colliding_entities.clear();
 	}
 
-	update_physics_simulation(delta_time);
+	this->check_collisions();
+	this->update_physics_simulation(delta_time);
 
 }
 

@@ -205,9 +205,7 @@ void handle_collision(Entity* entity_a, Entity* entity_b,Vector2D collision_norm
 	float velAlongNormal = vector_dot(rv, collision_normal);
 
 	if (velAlongNormal > 0) {
-		// normal might be backward; flip it if needed
-		collision_normal = vector_scale(collision_normal, -1.0f);
-		velAlongNormal = -velAlongNormal;
+		return;
 	}
 
 	// Step 3: Coefficient of restitution
