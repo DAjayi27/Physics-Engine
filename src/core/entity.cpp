@@ -12,7 +12,8 @@ Entity::Entity()
     : shape(nullptr)
     , physics(nullptr)
     , color{0, 0, 0, 255}
-    , collision_type(NONE) {
+    , collision_type(NONE)
+		{
 }
 
 // Entity::Entity(std::unique_ptr<Shape> shape,
@@ -80,7 +81,7 @@ void Entity::set_velocity_y(float y) {
 }
 
 bool Entity::is_static() const {
-    return physics ? physics->is_static() : true;
+    return physics ? physics->is_static() : false;
 }
 
 void Entity::set_static(bool is_static) {

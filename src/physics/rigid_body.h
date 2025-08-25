@@ -20,6 +20,7 @@ private:
     bool affected_by_gravity = true;
     float friction = 0.1f;
 
+
     // Private gravity physics method
     void update_gravity_physics(float delta_time, float area);
 
