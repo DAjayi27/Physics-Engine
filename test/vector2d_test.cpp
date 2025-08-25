@@ -6,7 +6,7 @@ TEST(Vector2D, Addition) {
     Vector2D a = {1.0f, 2.0f};
     Vector2D b = {3.0f, 4.0f};
     Vector2D result = vector_add(a, b);
-    EXPECT_FLOAT_EQ(resul	t.x, 4.0f);
+    EXPECT_FLOAT_EQ(result.x, 4.0f);
     EXPECT_FLOAT_EQ(result.y, 6.0f);
 }
 

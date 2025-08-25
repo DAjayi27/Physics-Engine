@@ -70,7 +70,9 @@ add_executable(Physics_Engine_Tests
         test/particle_test.cpp
         test/physics_update_test.cpp
         test/collision_test.cpp
-        
+
+        src/core/world.cpp
+        src/core/world.h
         src/core/vector.cpp
         src/core/vector.h
         src/shapes/circle.cpp
@@ -94,6 +96,8 @@ add_executable(Physics_Engine_Tests
         src/physics/physics.h
         src/core/entity.cpp
         src/core/entity.h
+        src/rendering/renderer.cpp
+        src/rendering/renderer.h
 )
 
 target_link_libraries(Physics_Engine_Tests GTest::gtest_main SDL3::SDL3)
