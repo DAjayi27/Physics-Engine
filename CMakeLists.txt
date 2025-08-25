@@ -53,9 +53,50 @@ add_executable(Physics_Engine
         src/core/world.h
         src/core/world.cpp)
 
-# Link SDL3 to the executable
+# Link SDL3 to the app
 #target_link_libraries(Physics_Engine SDL3_image::SDL3_image)
-target_link_libraries(Physics_Engine SDL3::SDL3 GTest::gtest_main)
+target_link_libraries(Physics_Engine SDL3::SDL3)
+
+# Tests target (separate from app)
+add_executable(Physics_Engine_Tests
+        test/vector2d_test.cpp
+        test/entity_test.cpp
+        test/world_test.cpp
+        test/shapes_circle_test.cpp
+        test/shapes_rectangle_test.cpp
+        test/physics_component_test.cpp
+        test/rigid_body_test.cpp
+        test/kinematic_test.cpp
+        test/particle_test.cpp
+        test/physics_update_test.cpp
+        test/collision_test.cpp
+        
+        src/core/vector.cpp
+        src/core/vector.h
+        src/shapes/circle.cpp
+        src/shapes/circle.h
+        src/shapes/rectangle.cpp
+        src/shapes/rectangle.h
+        src/shapes/shape.cpp
+        src/shapes/shape.h
+        src/collision/collision.cpp
+        src/collision/collision.h
+        src/collision/collision_types.h
+        src/physics/physics_component.cpp
+        src/physics/physics_component.h
+        src/physics/rigid_body.cpp
+        src/physics/rigid_body.h
+        src/physics/kinematic.cpp
+        src/physics/kinematic.h
+        src/physics/particle.cpp
+        src/physics/particle.h
+        src/physics/physics.cpp
+        src/physics/physics.h
+        src/core/entity.cpp
+        src/core/entity.h
+)
+
+target_link_libraries(Physics_Engine_Tests GTest::gtest_main SDL3::SDL3)
 
 include(GoogleTest)
-gtest_discover_tests(Physics_Engine)
+gtest_discover_tests(Physics_Engine_Tests)
