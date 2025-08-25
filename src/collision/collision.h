@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/core/entity.h"
+#include "core/entity.h"
 #include <memory>
 
 /**

@@ -5,10 +5,22 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include_directories(.)
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG main
+)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 find_package(SDL3 REQUIRED)
 #find_package(SDL3_image REQUIRED)
+
+enable_testing()
 
 add_executable(Physics_Engine
         src/main.cpp
@@ -43,4 +55,7 @@ add_executable(Physics_Engine
 
 # Link SDL3 to the executable
 #target_link_libraries(Physics_Engine SDL3_image::SDL3_image)
-target_link_libraries(Physics_Engine SDL3::SDL3)
+target_link_libraries(Physics_Engine SDL3::SDL3 GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(Physics_Engine)

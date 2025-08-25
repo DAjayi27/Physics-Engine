@@ -6,8 +6,8 @@
 
 #include <SDL3/SDL_pixels.h>
 #include <memory>
-#include "src/physics/physics_component.h"
-#include "src/shapes/shape.h"
+#include "physics/physics_component.h"
+#include "shapes/shape.h"
 
 /**
  * @brief Represents an entity in the physics simulation
