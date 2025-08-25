@@ -3,6 +3,11 @@
 #include "collision/collision.h"
 #include "physics/rigid_body.h"
 #include "rendering/renderer.h"
+#include <iostream>
+
+#define GREEN (SDL_Color){0, 255, 0, 255}
+#define RED (SDL_Color){255, 0, 0, 1}
+#define WHITE (SDL_Color){255, 255, 255, 255}
 
 World::World() {
 
@@ -15,10 +20,10 @@ bool World::init() {
 
 	Renderer::initialize_render_system();
 	initialize_collision_system();
-	if (!initialize_sdl()) {
+	if (!initializeSdl()) {
 		return false;
 	}
-	init_window_and_renderer(&this->window, &this->renderer);
+	initWindowAndRenderer(&this->window, &this->renderer);
 	return true;
 }
 
@@ -53,8 +58,8 @@ void World::update() {
 		this->currently_colliding_entities.clear();
 	}
 
-	this->check_collisions();
-	this->update_physics_simulation(delta_time);
+	this->checkCollisions();
+	this->updatePhysicsSimulation(delta_time);
 
 }
 
@@ -73,7 +78,7 @@ void World::render() {
  * @brief Initializes SDL and returns success status
  * @return true if initialization failed, false if successful
  */
-bool World::initialize_sdl() {
+bool World::initializeSdl() {
 	if (SDL_Init(SDL_INIT_VIDEO)) {
 		return true;
 	} else {
@@ -88,7 +93,7 @@ bool World::initialize_sdl() {
  * @param window Pointer to SDL_Window* to be initialized
  * @param renderer Pointer to SDL_Renderer* to be initialized
  */
-void World::init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer) {
+void World::initWindowAndRenderer(SDL_Window** window, SDL_Renderer** renderer) {
 	SDL_Rect bounds;
 	SDL_GetDisplayBounds(2, &bounds);
 
@@ -103,7 +108,7 @@ void World::init_window_and_renderer(SDL_Window** window, SDL_Renderer** rendere
  * @param entities Array of entities to update
  * @param delta_time Time elapsed since last frame
  */
-void World::update_physics_simulation(float delta_time) {
+void World::updatePhysicsSimulation(float delta_time) {
 
 	for (auto &entity : entities) {
 		if (!entity || !entity->physics) {
@@ -124,7 +129,7 @@ void World::update_physics_simulation(float delta_time) {
  * @param count Number of entities
  * @param delta_time Time elapsed since last frame
  */
-void World::check_collisions() {
+void World::checkCollisions() {
 
 	for (size_t i = 0; i < entities.size(); ++i) {
 		for (size_t j = i + 1; j < entities.size(); ++j) {
@@ -138,32 +143,48 @@ void World::check_collisions() {
 
 				handle_collision(entity_a.get(), entity_b.get(),collision_normal);
 
-				currently_colliding_entities.insert(this->generate_pairing(entity_a->entity_id , entity_b->entity_id));
+				currently_colliding_entities.insert(this->generatePairing(entity_a->entity_id , entity_b->entity_id));
 				continue;
 			}
 
 
-			handle_collision_exit(entity_a,entity_b);
+			handleCollisionExit(entity_a,entity_b);
 
 		}
 	}
 
 }
 
-uint64_t World:: generate_pairing (uint32_t first_id ,  uint32_t second_id) {
+uint64_t World:: generatePairing (uint32_t first_id ,  uint32_t second_id) {
 	return (uint64_t)std::min(first_id,second_id) << 32 | std::max(first_id,second_id);
 }
 
-void World::handle_collision_exit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b ) {
+void World::handleCollisionExit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b ) {
 
-	uint64_t paired_id = this->generate_pairing(entity_a->entity_id , entity_b->entity_id);
+	uint64_t paired_id = this->generatePairing(entity_a->entity_id , entity_b->entity_id);
 
 	if (prev_colliding_entities.contains(paired_id)) {
 		((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(true);
 		((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(true);
 	}
-
 }
+
+
+void World::handleUiEvents(SDL_Event& event) {
+
+	if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == 3) {
+
+		SDL_Window * popup = SDL_CreatePopupWindow(this->window, event.button.x , event.button.y, 100,100,SDL_WINDOW_POPUP_MENU);
+		// SDL_Renderer *popupRenderer = SDL_CreateRenderer(popup, "opengl");
+
+		SDL_SetRenderDrawColor(renderer , RED.r,RED.g , RED.b, RED.a );
+		SDL_RenderClear(renderer);
+
+
+		std::cout <<  "Mouse " << (int)event.button.button << " Clicked" << std::endl;
+	}
+}
+
 
 
 
