@@ -13,10 +13,7 @@
 #include "core/vector.h"
 #include "physics/rigid_body.h"
 
-#define NO_OF_COLLISIONS 3
-typedef Vector2D (*CollisionFunc)(Entity* a, Entity* b);
 
-static CollisionFunc dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS];
 
 /**
  * @brief Performs axis-aligned bounding box collision detection
@@ -24,7 +21,7 @@ static CollisionFunc dispatch_table[NO_OF_COLLISIONS][NO_OF_COLLISIONS];
  * @param second_shape Second entity
  * @return True if AABB collision detected, false otherwise
  */
-extern Vector2D aabb_collision(Entity* first_shape, Entity* second_shape) {
+ Vector2D CollisionManager::aabb_collision(Entity* first_shape, Entity* second_shape) {
 
 	if (first_shape->shape->get_collision_type() != AABB_COLLISION ||second_shape->shape->get_collision_type() != AABB_COLLISION) {
 		fprintf(stderr, "Non rectangle collider shape passed to rectangle on rectangle collider");
@@ -76,7 +73,7 @@ extern Vector2D aabb_collision(Entity* first_shape, Entity* second_shape) {
  * @param second_shape Second entity
  * @return True if circle collision detected, false otherwise
  */
-extern Vector2D circle_collision(Entity* first_shape, Entity* second_shape) {
+ Vector2D CollisionManager::circle_collision(Entity* first_shape, Entity* second_shape) {
   if (first_shape->shape->get_collision_type() != CIRCLE_COLLISION || 
     second_shape->shape->get_collision_type() != CIRCLE_COLLISION) {
     fprintf(stderr, "Non circle collider shape passed to circle on circle collider");
@@ -112,7 +109,7 @@ extern Vector2D circle_collision(Entity* first_shape, Entity* second_shape) {
  * @return a normalised collision vector between the two entities if a collision occurs or a zero vector if no collision occurs
  *
  ***/
-extern Vector2D circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
+ Vector2D CollisionManager::circle_aabb_collision(Entity* first_shape, Entity* second_shape) {
 
 	// determine which one is the circle and which one is the rectangle.
 
@@ -178,7 +175,7 @@ extern Vector2D circle_aabb_collision(Entity* first_shape, Entity* second_shape)
  * @param second_shape Second entity
  * @return True if entities are colliding, false otherwise
  */
-Vector2D is_colliding(Entity* first_shape, Entity* second_shape) {
+Vector2D CollisionManager::is_colliding(Entity* first_shape, Entity* second_shape) {
     CollisionFunc func = dispatch_table[first_shape->shape->get_collision_type()][second_shape->shape->get_collision_type()];
 
     if (func) {
@@ -194,7 +191,7 @@ Vector2D is_colliding(Entity* first_shape, Entity* second_shape) {
  * @param entity_a First entity
  * @param entity_b Second entity
  */
-void handle_collision(Entity* entity_a, Entity* entity_b,Vector2D collision_normal) {
+void CollisionManager::handle_collision(Entity* entity_a, Entity* entity_b,Vector2D collision_normal) {
 	Rigid_Body* bodyA = static_cast<Rigid_Body*>(entity_a->physics.get());
 	Rigid_Body* bodyB = static_cast<Rigid_Body*>(entity_b->physics.get());
 
@@ -229,18 +226,16 @@ void handle_collision(Entity* entity_a, Entity* entity_b,Vector2D collision_norm
 	bodyB->set_velocity(vector_add(bodyB->get_velocity(), vector_scale(impulse, invMassB)));
 }
 
-/**
- * @brief Initializes the collision detection system
- */
-void initialize_collision_system() {
-	for (int i = 0; i < NO_OF_COLLISIONS; ++i) {
-		for (int j = 0; j < NO_OF_COLLISIONS; ++j) {
-			dispatch_table[i][j] = nullptr;
-		}
-	}
 
-	dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
-	dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
-	dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
-	dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
+// Helper to initialize the table
+void CollisionManager::init_dispatch_table() {
+
+ 	dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
+ 	dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
+ 	dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
+ 	dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
 }
+
+
+
+

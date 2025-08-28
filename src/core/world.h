@@ -9,6 +9,7 @@
 #include <set>
 #include <cmath>
 
+#include "collision/collision.h"
 #include "ui/ui_manager.h"
 // #include <SDL3_image/SDL_image.h>
 
@@ -42,6 +43,7 @@ private:
 	set<uint64_t> currently_colliding_entities;
 	set<uint64_t> prev_colliding_entities;
 	unique_ptr<UiManager> ui_manager;
+	unique_ptr<CollisionManager> collision_manager;
 
 	float gravity = 9.8f; // or use a vector for 2D gravity
 	SDL_Window* window;

@@ -22,7 +22,8 @@ World::World(                        ) {
 bool World::init() {
 
 	Renderer::initialize_render_system();
-	initialize_collision_system();
+	this->collision_manager = make_unique<CollisionManager>();
+	this->collision_manager->init_dispatch_table();
 	if (!initializeSdl()) {
 		return false;
 	}
@@ -145,11 +146,11 @@ void World::checkCollisions() {
 			auto& entity_a = entities[i];
 			auto& entity_b = entities[j];
 
-			Vector2D collision_normal = is_colliding( entity_a.get(), entity_b.get() );
+			Vector2D collision_normal = this->collision_manager->is_colliding( entity_a.get(), entity_b.get() );
 
 			if ( collision_normal.x != 0 || collision_normal.y != 0   ) {
 
-				handle_collision(entity_a.get(), entity_b.get(),collision_normal);
+				this->collision_manager->handle_collision(entity_a.get(), entity_b.get(),collision_normal);
 
 				currently_colliding_entities.insert(this->generatePairing(entity_a->entity_id , entity_b->entity_id));
 				continue;
