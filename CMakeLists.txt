@@ -61,7 +61,8 @@ add_executable(Physics_Engine
         src/ui/ui_action.cpp
         src/ui/ui_action.h
         src/ui/components/ui_main.cpp
-        src/ui/components/ui_main.h)
+        src/ui/components/ui_main.h
+        src/ui/ui_manager.cpp)
 
 # Link SDL3 to the app
 #target_link_libraries(Physics_Engine SDL3_image::SDL3_image)

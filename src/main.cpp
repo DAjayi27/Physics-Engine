@@ -81,7 +81,7 @@ void render_entities(Entity_List& entities, SDL_Renderer* renderer) {
  * @param entities Array to fill with entities
  * @param count Number of entities to create
  */
-vector<unique_ptr<Entity>> create_circle_entities(int count,std::uniform_int_distribution<uint32_t> dist ,std::mt19937_64 gen) {
+vector<unique_ptr<Entity>> create_circle_entities(unique_ptr<World>& world,int count,std::uniform_int_distribution<uint32_t> dist ,std::mt19937_64 gen) {
 
 	Entity_List entities;
 
@@ -90,13 +90,13 @@ vector<unique_ptr<Entity>> create_circle_entities(int count,std::uniform_int_dis
       float x = rand() % (1920 - 2 * radius) + radius;
       float y = 0 + radius;
       SDL_Color color = RED;
-      float mass = 150.0f ; // value in kg
+      float mass = 1.50f ; // value in kg
 
       // Create shape
       auto shape = make_unique<Circle>(radius);
 
       // Create physics component with gravity disabled
-      auto physics = make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f}, false, true);
+      auto physics = make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f}, false, true,world->getPPM());
 
       // Set initial position
       physics->set_position(Vector2D{x, y});
@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 
 
   int count = 1;
-	Entity_List entities = create_circle_entities(count, dist,gen);
+	Entity_List entities = create_circle_entities( world,count, dist,gen);
 
 	world->addEntities(entities);
 
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 	float y = 1080 - 100;
 
 	auto floor_shape = make_unique<Rectangle>(1920, 100, true);
-	auto floor_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
+	auto floor_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false ,world->getPPM());
 	floor_physics->set_position(Vector2D{x, y});
 
 

@@ -33,7 +33,7 @@ Rigid_Body::Rigid_Body() {
 
 Rigid_Body::Rigid_Body(float mass, float friction, float restitution, 
                        Vector2D velocity, Vector2D acceleration, 
-                       bool is_static, bool affected_by_gravity) {
+                       bool is_static, bool affected_by_gravity,float ppm) {
     this->mass = mass;
     this->friction = friction;
     this->restitution = restitution;
@@ -41,6 +41,7 @@ Rigid_Body::Rigid_Body(float mass, float friction, float restitution,
     this->acceleration = acceleration;
     this->static_object = is_static;
     this->affected_by_gravity = affected_by_gravity;
+		this->pixelPerMeter = ppm;
 }
 
 void Rigid_Body::update(float delta_time,float area) {
@@ -83,40 +84,56 @@ void Rigid_Body::update_gravity_physics(float delta_time, float area) {
   if (static_object || !affected_by_gravity) {
       return;
   }
+	// --- Setup constants ---
+	const float rho = 1.293f;   // kg/m³ (air) air desity
+	const float Cd  = 0.47f;    // sphere-like object
+	const float g   = 9.8f;     // gravity m/s²
 
-	// extra force in X (e.g., wind pushing right)
-	float wind_force_x = 1000.0f;
+	// --- Height-dependent wind setup ---
+	const float H     = 20.0f;  // reference height in meters (increase wind speed by K every h meters)
+	const float v_w0  = 0.0f;   // wind speed at ground level (m/s)
+	const float k     = 10.0f;   // wind increase across H (m/s)
 
-	// Air density (ρ) and drag coefficient (Cd)
-	const float rho = 1.293f;   // kg/m³ (air)
-	const float Cd = 0.47f;     // sphere-like object
+	// Current position (meters)
+	Vector2D pos_m = get_position_meters();
+	float h = pos_m.y; // assuming y = height in meters
 
-	// --- Drag force (applies in both axes) ---
-	float drag_force_x = -0.5f * rho * area * velocity.x * fabsf(velocity.x) * Cd;
-	float drag_force_y = -0.5f * rho * area * velocity.y * fabsf(velocity.y) * Cd;
+	// Clamp normalized height [0,1]
+	float eta = fminf(fmaxf(h / H, 0.0f), 1.0f);
 
-	// --- Gravity (y-axis only) ---
-	float gravitational_force_y = mass * 98.0f;
+	// Wind velocity at this height
+	float v_wind_x = -(v_w0 + k * eta); // (+ve is rightward direction ) (-ve is a leftward direction)
+
+
+	// --- Relative velocities ---
+	float vrel_x = velocity.x - v_wind_x;
+	float vrel_y = velocity.y; // no wind vertically
+
+	// --- Drag forces (Fd = -0.5 * rho * v * |v| * A * Cd) ---
+	float drag_force_x = -0.5f * rho * area * vrel_x * fabsf(vrel_x) * Cd;
+	float drag_force_y = -0.5f * rho * area * vrel_y * fabsf(vrel_y) * Cd;
+
+	// --- Gravity force (y only) ---
+	float gravitational_force_y = mass * g;
 
 	// --- Net forces ---
-	float total_force_x = drag_force_x +wind_force_x;
+	float total_force_x = drag_force_x; // wind already in relative velocity
 	float total_force_y = drag_force_y + gravitational_force_y;
 
 	// --- Accelerations ---
 	float accel_x = total_force_x / mass;
 	float accel_y = total_force_y / mass;
 
-	// --- Position updates ---
-	float new_position_offset_x = velocity.x * delta_time + 0.5f * accel_x * delta_time * delta_time;
-	float new_position_offset_y = velocity.y * delta_time + 0.5f * accel_y * delta_time * delta_time;
-
-	// --- Velocity updates ---
+	// --- Update velocity (semi-implicit Euler) ---
 	velocity.x += accel_x * delta_time;
 	velocity.y += accel_y * delta_time;
 
 	// --- Update position ---
-	position.x += new_position_offset_x;
-	position.y += new_position_offset_y;
+	pos_m.x += velocity.x * delta_time;
+	pos_m.y += velocity.y * delta_time;
+	printf("%f\n",pos_m.x);
+	set_position_meters(pos_m);
+
 }
 
 PhysicsType Rigid_Body::get_type() const {

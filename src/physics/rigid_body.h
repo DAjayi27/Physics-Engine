@@ -29,7 +29,7 @@ public:
     Rigid_Body();
     Rigid_Body(float mass, float friction, float restitution, 
                Vector2D velocity, Vector2D acceleration, 
-               bool is_static, bool affected_by_gravity);
+               bool is_static, bool affected_by_gravity,float ppm);
 
     // Core physics methods
     void update(float delta_time,float area) override;

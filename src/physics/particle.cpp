@@ -20,11 +20,12 @@ Particle::Particle() {
     // Default constructor - all values are initialized in the header
 }
 
-Particle::Particle(float mass, Vector2D velocity, float lifetime, bool is_static) {
+Particle::Particle(float mass, Vector2D velocity, float lifetime, bool is_static,float ppm) {
     this->mass = mass;
     this->velocity = velocity;
     this->lifetime = lifetime;
     this->static_object = is_static;
+		this->pixelPerMeter = ppm;
 }
 
 void Particle::update(float delta_time, float area) {

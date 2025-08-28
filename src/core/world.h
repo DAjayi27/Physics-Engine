@@ -34,6 +34,7 @@ public:
 	void update();
 	void render();
 	void handleUiEvents(SDL_Event& event);
+	float getPPM();
 
 private:
 
@@ -45,7 +46,7 @@ private:
 	float gravity = 9.8f; // or use a vector for 2D gravity
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	const int PPM = 50;
+	const float PPM = 50;
 	uint64_t last_time = SDL_GetPerformanceCounter();
 
 

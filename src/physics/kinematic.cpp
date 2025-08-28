@@ -11,12 +11,13 @@ Kinematic::Kinematic() {
 }
 
 Kinematic::Kinematic(float mass, Vector2D velocity, Vector2D acceleration, 
-                     bool is_static, bool affected_by_gravity) {
+                     bool is_static, bool affected_by_gravity,float ppm) {
     this->mass = mass;
     this->velocity = velocity;
     this->acceleration = acceleration;
     this->static_object = is_static;
     this->affected_by_gravity = affected_by_gravity;
+		this->pixelPerMeter = ppm;
 }
 
 void Kinematic::update(float delta_time, float area) {

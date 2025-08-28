@@ -17,7 +17,7 @@ private:
 public:
     // Constructors
     Particle();
-    Particle(float mass, Vector2D velocity, float lifetime, bool is_static);
+    Particle(float mass, Vector2D velocity, float lifetime, bool is_static,float ppm);
 
     // Core physics methods
     void update(float delta_time, float area) override;
