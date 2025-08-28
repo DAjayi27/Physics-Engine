@@ -40,3 +40,20 @@ bool Physics_Component::is_static() const {
 void Physics_Component::set_static(bool is_static) {
     static_object = is_static;
 }
+
+void Physics_Component::set_position_meters(Vector2D pos_m) {
+
+	position.x = pos_m.x * pixelPerMeter;
+	position.y = pos_m.y * pixelPerMeter;
+}
+
+Vector2D Physics_Component::get_position_meters() const {
+	return { position.x / pixelPerMeter,
+							 position.y / pixelPerMeter };
+}
+
+
+void Physics_Component::set_position_x_meters(float mx) { position.x = mx * pixelPerMeter; }
+void Physics_Component::set_position_y_meters(float my) { position.y = my * pixelPerMeter; }
+
+

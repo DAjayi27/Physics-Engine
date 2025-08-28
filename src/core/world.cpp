@@ -205,6 +205,11 @@ void World::renderUiComponenets() {
 
 }
 
+float World::getPPM() {
+	return this->PPM;
+}
+
+
 
 
 

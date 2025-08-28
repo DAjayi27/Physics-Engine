@@ -33,7 +33,7 @@ Rigid_Body::Rigid_Body() {
 
 Rigid_Body::Rigid_Body(float mass, float friction, float restitution, 
                        Vector2D velocity, Vector2D acceleration, 
-                       bool is_static, bool affected_by_gravity) {
+                       bool is_static, bool affected_by_gravity,float ppm) {
     this->mass = mass;
     this->friction = friction;
     this->restitution = restitution;
@@ -41,6 +41,7 @@ Rigid_Body::Rigid_Body(float mass, float friction, float restitution,
     this->acceleration = acceleration;
     this->static_object = is_static;
     this->affected_by_gravity = affected_by_gravity;
+		this->pixelPerMeter = ppm;
 }
 
 void Rigid_Body::update(float delta_time,float area) {
@@ -83,40 +84,39 @@ void Rigid_Body::update_gravity_physics(float delta_time, float area) {
   if (static_object || !affected_by_gravity) {
       return;
   }
-
-	// extra force in X (e.g., wind pushing right)
-	float wind_force_x = 1000.0f;
-
-	// Air density (ρ) and drag coefficient (Cd)
+	// --- Setup constants ---
 	const float rho = 1.293f;   // kg/m³ (air)
-	const float Cd = 0.47f;     // sphere-like object
+	const float Cd  = 0.47f;    // sphere-like object
+	const float g   = 9.8f;     // gravity m/s²
 
-	// --- Drag force (applies in both axes) ---
+	// --- Forces ---
+	// External force in x (e.g., wind pushing right)
+	float wind_force_x = 10.0f; // Newtons
+
+	// Drag force in both axes: Fd = 0.5 * ρ * v² * A * Cd
 	float drag_force_x = -0.5f * rho * area * velocity.x * fabsf(velocity.x) * Cd;
 	float drag_force_y = -0.5f * rho * area * velocity.y * fabsf(velocity.y) * Cd;
 
-	// --- Gravity (y-axis only) ---
-	float gravitational_force_y = mass * 98.0f;
+	// Gravity only on y
+	float gravitational_force_y = mass * g;
 
-	// --- Net forces ---
-	float total_force_x = drag_force_x +wind_force_x;
+	// Net forces
+	float total_force_x = drag_force_x + wind_force_x;
 	float total_force_y = drag_force_y + gravitational_force_y;
 
 	// --- Accelerations ---
-	float accel_x = total_force_x / mass;
-	float accel_y = total_force_y / mass;
+	float accel_x = total_force_x / mass; // m/s²
+	float accel_y = total_force_y / mass; // m/s²
 
-	// --- Position updates ---
-	float new_position_offset_x = velocity.x * delta_time + 0.5f * accel_x * delta_time * delta_time;
-	float new_position_offset_y = velocity.y * delta_time + 0.5f * accel_y * delta_time * delta_time;
-
-	// --- Velocity updates ---
+	// --- Update velocity (semi-implicit Euler is usually better)
 	velocity.x += accel_x * delta_time;
 	velocity.y += accel_y * delta_time;
 
-	// --- Update position ---
-	position.x += new_position_offset_x;
-	position.y += new_position_offset_y;
+	// --- Update position in meters ---
+	Vector2D pos_m = get_position_meters();
+	pos_m.x += velocity.x * delta_time;
+	pos_m.y += velocity.y * delta_time;
+	set_position_meters(pos_m);
 }
 
 PhysicsType Rigid_Body::get_type() const {

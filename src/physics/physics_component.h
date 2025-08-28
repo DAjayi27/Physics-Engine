@@ -35,9 +35,13 @@ public:
 
   // Position methods
   Vector2D get_position() const;
+  Vector2D get_position_meters() const;
   void set_position(Vector2D position);
   void set_position_x(float x);
   void set_position_y(float y);
+	void set_position_meters(Vector2D position);
+	void set_position_x_meters(float x);
+	void set_position_y_meters(float y);
 
   // Velocity methods
   Vector2D get_velocity() const;
@@ -55,6 +59,7 @@ protected:
   Vector2D position{0.0f, 0.0f};
   Vector2D velocity{0.0f, 0.0f};
   bool static_object = false;
+	float pixelPerMeter = 0.0f;
 };
 
 // extern Physics_Component create_physics_component(Physics_Type type, Vector_2D velocity , Vector_2D acceleration , float mass);
