@@ -90,7 +90,7 @@ vector<unique_ptr<Entity>> create_circle_entities(unique_ptr<World>& world,int c
       float x = rand() % (1920 - 2 * radius) + radius;
       float y = 0 + radius;
       SDL_Color color = RED;
-      float mass = 150.0f ; // value in kg
+      float mass = 1.50f ; // value in kg
 
       // Create shape
       auto shape = make_unique<Circle>(radius);

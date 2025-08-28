@@ -85,38 +85,55 @@ void Rigid_Body::update_gravity_physics(float delta_time, float area) {
       return;
   }
 	// --- Setup constants ---
-	const float rho = 1.293f;   // kg/m³ (air)
+	const float rho = 1.293f;   // kg/m³ (air) air desity
 	const float Cd  = 0.47f;    // sphere-like object
 	const float g   = 9.8f;     // gravity m/s²
 
-	// --- Forces ---
-	// External force in x (e.g., wind pushing right)
-	float wind_force_x = 10.0f; // Newtons
+	// --- Height-dependent wind setup ---
+	const float H     = 20.0f;  // reference height in meters (increase wind speed by K every h meters)
+	const float v_w0  = 0.0f;   // wind speed at ground level (m/s)
+	const float k     = 10.0f;   // wind increase across H (m/s)
 
-	// Drag force in both axes: Fd = 0.5 * ρ * v² * A * Cd
-	float drag_force_x = -0.5f * rho * area * velocity.x * fabsf(velocity.x) * Cd;
-	float drag_force_y = -0.5f * rho * area * velocity.y * fabsf(velocity.y) * Cd;
+	// Current position (meters)
+	Vector2D pos_m = get_position_meters();
+	float h = pos_m.y; // assuming y = height in meters
 
-	// Gravity only on y
+	// Clamp normalized height [0,1]
+	float eta = fminf(fmaxf(h / H, 0.0f), 1.0f);
+
+	// Wind velocity at this height
+	float v_wind_x = -(v_w0 + k * eta); // (+ve is rightward direction ) (-ve is a leftward direction)
+
+
+	// --- Relative velocities ---
+	float vrel_x = velocity.x - v_wind_x;
+	float vrel_y = velocity.y; // no wind vertically
+
+	// --- Drag forces (Fd = -0.5 * rho * v * |v| * A * Cd) ---
+	float drag_force_x = -0.5f * rho * area * vrel_x * fabsf(vrel_x) * Cd;
+	float drag_force_y = -0.5f * rho * area * vrel_y * fabsf(vrel_y) * Cd;
+
+	// --- Gravity force (y only) ---
 	float gravitational_force_y = mass * g;
 
-	// Net forces
-	float total_force_x = drag_force_x + wind_force_x;
+	// --- Net forces ---
+	float total_force_x = drag_force_x; // wind already in relative velocity
 	float total_force_y = drag_force_y + gravitational_force_y;
 
 	// --- Accelerations ---
-	float accel_x = total_force_x / mass; // m/s²
-	float accel_y = total_force_y / mass; // m/s²
+	float accel_x = total_force_x / mass;
+	float accel_y = total_force_y / mass;
 
-	// --- Update velocity (semi-implicit Euler is usually better)
+	// --- Update velocity (semi-implicit Euler) ---
 	velocity.x += accel_x * delta_time;
 	velocity.y += accel_y * delta_time;
 
-	// --- Update position in meters ---
-	Vector2D pos_m = get_position_meters();
+	// --- Update position ---
 	pos_m.x += velocity.x * delta_time;
 	pos_m.y += velocity.y * delta_time;
+	printf("%f\n",pos_m.x);
 	set_position_meters(pos_m);
+
 }
 
 PhysicsType Rigid_Body::get_type() const {
