@@ -8,6 +8,8 @@
 #include <SDL3/SDL.h>
 #include <set>
 #include <cmath>
+
+#include "ui/ui_manager.h"
 // #include <SDL3_image/SDL_image.h>
 
 
@@ -31,12 +33,14 @@ public:
 	void addEntities(vector<unique_ptr<Entity>>& entities);
 	void update();
 	void render();
+	void handleUiEvents(SDL_Event& event);
 
 private:
 
 	vector<unique_ptr<Entity>> entities;
 	set<uint64_t> currently_colliding_entities;
 	set<uint64_t> prev_colliding_entities;
+	unique_ptr<UiManager> ui_manager;
 
 	float gravity = 9.8f; // or use a vector for 2D gravity
 	SDL_Window* window;
@@ -45,10 +49,12 @@ private:
 	uint64_t last_time = SDL_GetPerformanceCounter();
 
 
-	bool initialize_sdl();
-	void init_window_and_renderer(SDL_Window** window, SDL_Renderer** renderer);
-	void update_physics_simulation(float delta_time);
-	void check_collisions();
-	uint64_t generate_pairing (uint32_t first_id ,  uint32_t second_id);
-	void handle_collision_exit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b );
+	bool initializeSdl();
+	void initWindowAndRenderer(SDL_Window** window, SDL_Renderer** renderer);
+	void updatePhysicsSimulation(float delta_time);
+	void checkCollisions();
+	uint64_t generatePairing (uint32_t first_id ,  uint32_t second_id);
+	void handleCollisionExit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b );
+	void initialiseUiManager();
+	void renderUiComponenets();
 };

@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
 	world->init();
 
 
-  int count = 2;
+  int count = 1;
 	Entity_List entities = create_circle_entities(count, dist,gen);
 
 	world->addEntities(entities);
@@ -150,6 +150,8 @@ int main(int argc, char** argv) {
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_EVENT_QUIT) {
 				running = false;
+			}else {
+				world->handleUiEvents(e);
 			}
 		}
 
