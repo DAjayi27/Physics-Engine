@@ -3,6 +3,9 @@
 //
 
 #include "rigid_body.h"
+
+#include <cstdio>
+
 #include "core/vector.h"
 #include <math.h>
 
@@ -81,32 +84,39 @@ void Rigid_Body::update_gravity_physics(float delta_time, float area) {
       return;
   }
 
-  float velocity_y = velocity.y;
+	// extra force in X (e.g., wind pushing right)
+	float wind_force_x = 1000.0f;
 
-  // Air drag: Fd = 1/2 × ρ × u² × A × Cd
-  float drag_force = -0.5f * 1.293f * area * velocity_y * fabsf(velocity_y) * 0.47f;
+	// Air density (ρ) and drag coefficient (Cd)
+	const float rho = 1.293f;   // kg/m³ (air)
+	const float Cd = 0.47f;     // sphere-like object
 
-  // Gravity
-  float gravitational_force = (mass) * (9.8f);
+	// --- Drag force (applies in both axes) ---
+	float drag_force_x = -0.5f * rho * area * velocity.x * fabsf(velocity.x) * Cd;
+	float drag_force_y = -0.5f * rho * area * velocity.y * fabsf(velocity.y) * Cd;
 
-  // Net force
-  float total_force = drag_force + gravitational_force;
+	// --- Gravity (y-axis only) ---
+	float gravitational_force_y = mass * 98.0f;
 
-  // Acceleration = F / m
-  float actual_acceleration = total_force / (mass);
+	// --- Net forces ---
+	float total_force_x = drag_force_x +wind_force_x;
+	float total_force_y = drag_force_y + gravitational_force_y;
 
-  // Position update: Δx = v₀ * dt + 0.5 * a * dt²
-  float new_position_offset = velocity.y * delta_time + 0.5f * actual_acceleration * delta_time * delta_time;
+	// --- Accelerations ---
+	float accel_x = total_force_x / mass;
+	float accel_y = total_force_y / mass;
 
-  // Velocity update: v = v₀ + a * dt
-  velocity.y += actual_acceleration * delta_time;
+	// --- Position updates ---
+	float new_position_offset_x = velocity.x * delta_time + 0.5f * accel_x * delta_time * delta_time;
+	float new_position_offset_y = velocity.y * delta_time + 0.5f * accel_y * delta_time * delta_time;
 
-  // Update position
-  Vector2D new_velocity = {0.0f, new_position_offset };
+	// --- Velocity updates ---
+	velocity.x += accel_x * delta_time;
+	velocity.y += accel_y * delta_time;
 
-	Vector2D new_acceleration = vector_scale(vector_subtract(new_velocity,this->velocity),(1/delta_time)); // calc new acceleration;
-
-  position = vector_add(position, vector_scale(new_velocity,5));
+	// --- Update position ---
+	position.x += new_position_offset_x;
+	position.y += new_position_offset_y;
 }
 
 PhysicsType Rigid_Body::get_type() const {

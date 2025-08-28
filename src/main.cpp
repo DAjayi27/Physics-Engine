@@ -123,24 +123,24 @@ int main(int argc, char** argv) {
 	world->init();
 
 
- //  int count = 2;
-	// Entity_List entities = create_circle_entities(count, dist,gen);
+  int count = 1;
+	Entity_List entities = create_circle_entities(count, dist,gen);
 
-	// world->addEntities(entities);
+	world->addEntities(entities);
 
-	//
-	// float x = 0;
-	// float y = 1080 - 100;
-	//
-	// auto floor_shape = make_unique<Rectangle>(1920, 100, true);
-	// auto floor_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
-	// floor_physics->set_position(Vector2D{x, y});
-	//
-	//
-	//
-	// auto floor = make_unique<Entity>(dist(gen),move(floor_shape),move(floor_physics),GREEN);
-	//
-	// world->addEntity(move(floor));
+
+	float x = 0;
+	float y = 1080 - 100;
+
+	auto floor_shape = make_unique<Rectangle>(1920, 100, true);
+	auto floor_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false);
+	floor_physics->set_position(Vector2D{x, y});
+
+
+
+	auto floor = make_unique<Entity>(dist(gen),move(floor_shape),move(floor_physics),GREEN);
+
+	world->addEntity(move(floor));
 
 	SDL_Event e;
 

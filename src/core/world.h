@@ -8,6 +8,8 @@
 #include <SDL3/SDL.h>
 #include <set>
 #include <cmath>
+
+#include "ui/ui_manager.h"
 // #include <SDL3_image/SDL_image.h>
 
 
@@ -38,6 +40,7 @@ private:
 	vector<unique_ptr<Entity>> entities;
 	set<uint64_t> currently_colliding_entities;
 	set<uint64_t> prev_colliding_entities;
+	unique_ptr<UiManager> ui_manager;
 
 	float gravity = 9.8f; // or use a vector for 2D gravity
 	SDL_Window* window;
@@ -52,4 +55,6 @@ private:
 	void checkCollisions();
 	uint64_t generatePairing (uint32_t first_id ,  uint32_t second_id);
 	void handleCollisionExit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b );
+	void initialiseUiManager();
+	void renderUiComponenets();
 };

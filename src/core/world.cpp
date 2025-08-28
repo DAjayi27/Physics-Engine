@@ -5,15 +5,18 @@
 #include "rendering/renderer.h"
 #include <iostream>
 
+#include "ui/components/ui_popup.h"
+
 #define GREEN (SDL_Color){0, 255, 0, 255}
 #define RED (SDL_Color){255, 0, 0, 1}
 #define WHITE (SDL_Color){255, 255, 255, 255}
 
-World::World() {
+World::World(                        ) {
 
 	this->entity_count = 0;
 	this->window = nullptr;
 	this->renderer = nullptr;
+	this->ui_manager = nullptr;
 }
 
 bool World::init() {
@@ -23,7 +26,8 @@ bool World::init() {
 	if (!initializeSdl()) {
 		return false;
 	}
-	initWindowAndRenderer(&this->window, &this->renderer);
+	this->initWindowAndRenderer(&this->window, &this->renderer);
+	this->initialiseUiManager();
 	return true;
 }
 
@@ -71,6 +75,10 @@ void World::render() {
 	for (auto&entity : entities) {
 		Renderer::render_entity(entity.get(),renderer,nullptr,false);
 	}
+
+	this->renderUiComponenets();
+
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -169,21 +177,39 @@ void World::handleCollisionExit(unique_ptr<Entity>& entity_a , unique_ptr<Entity
 	}
 }
 
-
 void World::handleUiEvents(SDL_Event& event) {
 
-	if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == 3) {
+	this->ui_manager->handleEvents(event);
 
-		SDL_Window * popup = SDL_CreatePopupWindow(this->window, event.button.x , event.button.y, 100,100,SDL_WINDOW_POPUP_MENU);
-		// SDL_Renderer *popupRenderer = SDL_CreateRenderer(popup, "opengl");
-
-		SDL_SetRenderDrawColor(renderer , RED.r,RED.g , RED.b, RED.a );
-		SDL_RenderClear(renderer);
-
-
-		std::cout <<  "Mouse " << (int)event.button.button << " Clicked" << std::endl;
-	}
 }
+
+void World::initialiseUiManager() {
+
+	this->ui_manager = make_unique<UiManager>(&this->window , &this->renderer);
+
+	// create basic component
+
+	this->ui_manager->init();
+
+}
+
+void World::renderUiComponenets() {
+
+	for (auto& component : this->ui_manager->ui_components) {
+		if (PopupComponent* comp = dynamic_cast<PopupComponent*>(component.get())) {
+			SDL_SetRenderDrawColor(comp->renderer , comp->color.r , comp->color.g , comp->color.b , comp->color.a );
+			SDL_RenderClear(comp->renderer);
+			SDL_RenderPresent(comp->renderer);
+		}
+	}
+
+}
+
+
+
+
+
+
 
 
 
