@@ -9,6 +9,7 @@
 #include <set>
 #include <cmath>
 
+#include "window.h"
 #include "collision/collision.h"
 #include "physics/physics.h"
 #include "ui/ui_manager.h"
@@ -44,17 +45,15 @@ private:
 	unique_ptr<UiManager> ui_manager;
 	unique_ptr<CollisionManager> collision_manager;
 	unique_ptr<	PhysicsSystem> physics_system;
+	unique_ptr<Window> window;
 
 	float gravity = 9.8f; // or use a vector for 2D gravity
-	SDL_Window* window;
-	SDL_Renderer* renderer;
 	const float PPM = 50;
 	uint64_t last_time = SDL_GetPerformanceCounter();
 
 
 	bool initializeSdl();
 	void initWindowAndRenderer(SDL_Window** window, SDL_Renderer** renderer);
-	void updatePhysicsSimulation(float delta_time);
 	void initialiseUiManager();
 	void renderUiComponenets();
 };

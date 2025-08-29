@@ -135,12 +135,23 @@ int main(int argc, char** argv) {
 	auto floor_shape = make_unique<Rectangle>(1920, 100, true);
 	auto floor_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false ,world->getPPM());
 	floor_physics->set_position(Vector2D{x, y});
-
-
-
 	auto floor = make_unique<Entity>(dist(gen),move(floor_shape),move(floor_physics),GREEN);
 
+
+
+	auto left_wall_shape = make_unique<Rectangle>(10, 1080, true);
+	auto left_wall_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false ,world->getPPM());
+	left_wall_physics->set_position(Vector2D{0, 0});
+	auto left_wall  = make_unique<Entity>(dist(gen),move(left_wall_shape),move(left_wall_physics),GREEN);
+
+	auto right_wall_shape = make_unique<Rectangle>(10, 1080, true);
+	auto right_wall_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false ,world->getPPM());
+	right_wall_physics->set_position(Vector2D{1910, 0});
+	auto right_wall  = make_unique<Entity>(dist(gen),move(right_wall_shape),move(right_wall_physics),GREEN);
+
 	world->addEntity(move(floor));
+	world->addEntity(move(left_wall));
+	world->addEntity(move(right_wall));
 
 	SDL_Event e;
 

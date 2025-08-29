@@ -15,8 +15,8 @@ World::World() {
 
 	this->entity_count = 0;
 	this->window = nullptr;
-	this->renderer = nullptr;
 	this->ui_manager = nullptr;
+	this->physics_system = nullptr;
 }
 
 bool World::init() {
@@ -27,15 +27,14 @@ bool World::init() {
 	if (!initializeSdl()) {
 		return false;
 	}
-	this->initWindowAndRenderer(&this->window, &this->renderer);
-	this->initialiseUiManager();
+	this->window = make_unique<Window>();
 	this->physics_system = make_unique<PhysicsSystem>();
+	this->initialiseUiManager();
+
 	return true;
 }
 
 bool World::quit() {
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
 	SDL_Quit();
 	return true;
 }
@@ -67,17 +66,10 @@ void World::update() {
 
 void World::render() {
 
-	SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-	SDL_RenderClear(renderer);
+	this->window->render(this->entities);
 
-	for (auto&entity : entities) {
-		Renderer::render_entity(entity.get(),renderer,nullptr,false);
-	}
+	// this->renderUiComponenets();
 
-	this->renderUiComponenets();
-
-
-	SDL_RenderPresent(renderer);
 }
 
 /**
@@ -118,7 +110,7 @@ void World::handleUiEvents(SDL_Event& event) {
 
 void World::initialiseUiManager() {
 
-	this->ui_manager = make_unique<UiManager>(&this->window , &this->renderer);
+	this->ui_manager = make_unique<UiManager>(this->window->sdl_window_ptr(),this->window->sdl_renderer_ptr());
 
 	// create basic component
 
