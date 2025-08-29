@@ -15,6 +15,11 @@
 
 
 
+CollisionManager::CollisionManager() {
+	this->init_dispatch_table();
+}
+
+
 /**
  * @brief Performs axis-aligned bounding box collision detection
  * @param first_shape First entity
@@ -230,11 +235,64 @@ void CollisionManager::handle_collision(Entity* entity_a, Entity* entity_b,Vecto
 // Helper to initialize the table
 void CollisionManager::init_dispatch_table() {
 
- 	dispatch_table[AABB_COLLISION][AABB_COLLISION] = aabb_collision;
- 	dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = circle_collision;
- 	dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = circle_aabb_collision;
- 	dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = circle_aabb_collision;
+ 	dispatch_table[AABB_COLLISION][AABB_COLLISION] = CollisionManager::aabb_collision;
+ 	dispatch_table[CIRCLE_COLLISION][CIRCLE_COLLISION] = CollisionManager::circle_collision;
+ 	dispatch_table[CIRCLE_COLLISION][AABB_COLLISION] = CollisionManager::circle_aabb_collision;
+ 	dispatch_table[AABB_COLLISION][CIRCLE_COLLISION] = CollisionManager::circle_aabb_collision;
 }
+
+void CollisionManager::checkCollisions(vector<unique_ptr<Entity>>& entities) {
+
+
+
+	for (size_t i = 0; i < entities.size(); ++i) {
+		for (size_t j = i + 1; j < entities.size(); ++j) {
+
+			auto& entity_a = entities[i];
+			auto& entity_b = entities[j];
+
+			Vector2D collision_normal = this->is_colliding( entity_a.get(), entity_b.get() );
+
+			if ( collision_normal.x != 0 || collision_normal.y != 0   ) {
+
+				this->handle_collision(entity_a.get(), entity_b.get(),collision_normal);
+
+				currently_colliding_entities.insert(this->generatePairing(entity_a->entity_id , entity_b->entity_id));
+				continue;
+			}
+
+
+			handleCollisionExit(entity_a,entity_b);
+
+		}
+	}
+}
+
+void CollisionManager::update_collision_tracker() {
+
+	if (!this->currently_colliding_entities.empty()) {
+		this->prev_colliding_entities  = this->currently_colliding_entities;
+		this->currently_colliding_entities.clear();
+	}
+
+}
+
+
+uint64_t CollisionManager::generatePairing (uint32_t first_id ,  uint32_t second_id) {
+	return (uint64_t)std::min(first_id,second_id) << 32 | std::max(first_id,second_id);
+}
+
+void CollisionManager::handleCollisionExit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b ) {
+
+	uint64_t paired_id = this->generatePairing(entity_a->entity_id , entity_b->entity_id);
+
+	if (prev_colliding_entities.contains(paired_id)) {
+		((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(true);
+		((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(true);
+	}
+}
+
+
 
 
 
