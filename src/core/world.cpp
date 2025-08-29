@@ -60,7 +60,7 @@ void World::update() {
 
 
 	this->collision_manager->checkCollisions(entities);
-	this->physics_system->update(entities , delta_time , getPPM());
+	this->physics_system->update(entities , 0.016 , getPPM());
 
 }
 

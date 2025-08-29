@@ -8,6 +8,7 @@
 
 #include "core/vector.h"
 #include <math.h>
+#include <bits/stl_algo.h>
 
 /**
  * @class Rigid_Body
@@ -90,19 +91,23 @@ void Rigid_Body::update_gravity_physics(float delta_time, float area) {
 	const float g   = 9.8f;     // gravity m/s²
 
 	// --- Height-dependent wind setup ---
-	const float H     = 20.0f;  // reference height in meters (increase wind speed by K every h meters)
-	const float v_w0  = 0.0f;   // wind speed at ground level (m/s)
-	const float k     = 10.0f;   // wind increase across H (m/s)
+	// Params
+	const float H        = 20.0f;     // meters to reach full wind
+	const float k        = 10.0f;     // max wind speed increase over H (m/s)
+	const float y_ground = 10.0f;    // ground y (meters), y decreases downward
 
 	// Current position (meters)
 	Vector2D pos_m = get_position_meters();
-	float h = pos_m.y; // assuming y = height in meters
 
-	// Clamp normalized height [0,1]
-	float eta = fminf(fmaxf(h / H, 0.0f), 1.0f);
+	// Height above ground (>= 0 because y increases upward)
+	float height = std::max(0.0f, pos_m.y - y_ground);
 
-	// Wind velocity at this height
-	float v_wind_x = -(v_w0 + k * eta); // (+ve is rightward direction ) (-ve is a leftward direction)
+	// Normalize to [0,1]
+	float eta = std::clamp(height / H, 0.0f, 1.0f);
+
+	// Wind speed at this height (negative = leftward, positive = rightward)
+	float v_wind_x = -(k * eta);  // zero at/under ground, reaches -k by y >= y_ground + H
+
 
 
 	// --- Relative velocities ---

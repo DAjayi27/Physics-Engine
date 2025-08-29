@@ -78,28 +78,49 @@ CollisionManager::CollisionManager() {
  * @param second_shape Second entity
  * @return True if circle collision detected, false otherwise
  */
- Vector2D CollisionManager::circle_collision(Entity* first_shape, Entity* second_shape) {
-  if (first_shape->shape->get_collision_type() != CIRCLE_COLLISION || 
-    second_shape->shape->get_collision_type() != CIRCLE_COLLISION) {
-    fprintf(stderr, "Non circle collider shape passed to circle on circle collider");
-    return Vector2D{0,0};
-  }
+ Vector2D CollisionManager::circle_collision(Entity* a, Entity* b) {
+	if (a->shape->get_collision_type() != CIRCLE_COLLISION ||
+				 b->shape->get_collision_type() != CIRCLE_COLLISION) {
+		fprintf(stderr, "Non-circle shape passed to circle-on-circle collider\n");
+		return {0,0};
+				 }
 
-	Circle* first_circle =  (Circle*)first_shape->shape.get();
-	Circle* second_circle =  (Circle*)second_shape->shape.get();
+	auto* ca = static_cast<Circle*>(a->shape.get());
+	auto* cb = static_cast<Circle*>(b->shape.get());
 
-  float distance_sqr = vector_distance_squared(first_shape->get_position(), second_shape->get_position());
-  float radius_sum = first_circle->get_radius() + second_circle->get_radius();
+	const Vector2D pa = a->get_position();
+	const Vector2D pb = b->get_position();
 
-	if (distance_sqr <= (radius_sum * radius_sum)) {
+	// delta points A -> B
+	Vector2D delta{ pb.x - pa.x, pb.y - pa.y };
+	float dist2 = delta.x*delta.x + delta.y*delta.y;
 
-		Vector2D collision_vector = {first_shape->get_position().x - second_shape->get_position().x ,
-			first_shape->get_position().y - second_shape->get_position().y};
+	const float rsum  = ca->get_radius() + cb->get_radius();
+	const float rsum2 = rsum * rsum;
 
-		return vector_normalize(collision_vector);
-	}else {
-		return Vector2D{0,0};
+	// Not colliding → no normal
+	if (dist2 > rsum2) return {0,0};
+
+	// Centers coincide: pick a stable direction (try relative velocity; else +X)
+	if (dist2 == 0.0f) {
+		Vector2D rv{0,0};
+		if (a->physics && b->physics) {
+			rv = vector_subtract(
+					static_cast<Rigid_Body*>(b->physics.get())->get_velocity(),
+					static_cast<Rigid_Body*>(a->physics.get())->get_velocity()
+			);
+		}
+		float rv2 = rv.x*rv.x + rv.y*rv.y;
+		if (rv2 > 0.0f) {
+			float inv = 1.0f / std::sqrt(rv2);
+			return { rv.x * inv, rv.y * inv };
+		}
+		return {1.0f, 0.0f}; // arbitrary fallback
 	}
+
+	// Unit normal (A -> B)
+	float invLen = 1.0f / std::sqrt(dist2);
+	return { delta.x * invLen, delta.y * invLen };
 }
 
 /**
@@ -200,6 +221,10 @@ void CollisionManager::handle_collision(Entity* entity_a, Entity* entity_b,Vecto
 	Rigid_Body* bodyA = static_cast<Rigid_Body*>(entity_a->physics.get());
 	Rigid_Body* bodyB = static_cast<Rigid_Body*>(entity_b->physics.get());
 
+	//Fix Entity Overlap
+
+	this->seperate_entities(entity_a,entity_b,collision_normal);
+
 	// Step 1: Relative velocity
 	Vector2D rv = vector_subtract(bodyB->get_velocity(), bodyA->get_velocity());
 
@@ -290,6 +315,49 @@ void CollisionManager::handleCollisionExit(unique_ptr<Entity>& entity_a , unique
 		((Rigid_Body*)entity_a->physics.get())->set_affected_by_gravity(true);
 		((Rigid_Body*)entity_b->physics.get())->set_affected_by_gravity(true);
 	}
+}
+
+void CollisionManager::seperate_entities(Entity* entity_a, Entity* entity_b,Vector2D collision_normal) {
+
+	Rigid_Body* bodyA = static_cast<Rigid_Body*>(entity_a->physics.get());
+	Rigid_Body* bodyB = static_cast<Rigid_Body*>(entity_b->physics.get());
+
+	float penetration =  vector_magnitude(collision_normal);
+
+	Vector2D unit_normal ;
+
+	if (penetration > 0.0f) {
+		unit_normal.x = collision_normal.x / penetration;
+		unit_normal.y = collision_normal.y / penetration;
+	}
+
+	// Treat mass==0 as static (immovable)
+	float invMassA = (bodyA->get_mass() > 0.0f) ? 1.0f / bodyA->get_mass() : 0.0f;
+	float invMassB = (bodyB->get_mass() > 0.0f) ? 1.0f / bodyB->get_mass() : 0.0f;
+	float invMassSum = invMassA + invMassB;
+
+	if (penetration > 0.0f && invMassSum > 0.0f) {
+		// Baumgarte-style correction: only correct meaningful overlap
+		const float slop    = 0.01f;  // tolerance in your world units
+		const float percent = 0.8f;   // push 80% this frame to avoid popping
+
+		float corrMag = std::max(penetration - slop, 0.0f) * (percent / invMassSum);
+		Vector2D corr = { unit_normal.x * corrMag, unit_normal.y * corrMag };
+
+		// Move A opposite n, B along n, weighted by inverse mass
+		Vector2D posA = entity_a->get_position();
+		Vector2D posB = entity_b->get_position();
+
+		posA.x -= corr.x * invMassA;
+		posA.y -= corr.y * invMassA;
+		posB.x += corr.x * invMassB;
+		posB.y += corr.y * invMassB;
+
+		entity_a->set_position(posA);
+		entity_b->set_position(posB);
+
+	}
+
 }
 
 

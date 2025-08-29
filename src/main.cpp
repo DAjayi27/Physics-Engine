@@ -95,8 +95,10 @@ vector<unique_ptr<Entity>> create_circle_entities(unique_ptr<World>& world,int c
       // Create shape
       auto shape = make_unique<Circle>(radius);
 
+  		std::uniform_real_distribution<float> limit(-10, 10);
+
       // Create physics component with gravity disabled
-      auto physics = make_unique<Rigid_Body>(mass, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f}, false, true,world->getPPM());
+      auto physics = make_unique<Rigid_Body>(mass, 0.1f, 1.0f, Vector2D{limit(gen), 0.0f}, Vector2D{0.0f, 0.0f}, false, true,world->getPPM());
 
       // Set initial position
       physics->set_position(Vector2D{x, y});
@@ -123,16 +125,16 @@ int main(int argc, char** argv) {
 	world->init();
 
 
-  int count = 1;
+  int count = 60;
 	Entity_List entities = create_circle_entities( world,count, dist,gen);
 
 	world->addEntities(entities);
 
 
 	float x = 0;
-	float y = 1080 - 100;
+	float y = 1080 ;
 
-	auto floor_shape = make_unique<Rectangle>(1920, 100, true);
+	auto floor_shape = make_unique<Rectangle>(1920, 10, true);
 	auto floor_physics = make_unique<Rigid_Body>(0, 0.1f, 0.5f, Vector2D{0.0f, 0.0f}, Vector2D{0.0f, 0.0f},true, false ,world->getPPM());
 	floor_physics->set_position(Vector2D{x, y});
 	auto floor = make_unique<Entity>(dist(gen),move(floor_shape),move(floor_physics),GREEN);

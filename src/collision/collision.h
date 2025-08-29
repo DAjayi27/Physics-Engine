@@ -23,7 +23,7 @@ private:
 	void update_collision_tracker();
 	uint64_t generatePairing (uint32_t first_id ,  uint32_t second_id);
 	void handleCollisionExit(unique_ptr<Entity>& entity_a , unique_ptr<Entity>& entity_b );
-
+	void seperate_entities(Entity* entity_a, Entity* entity_b,Vector2D collision_normal);
 
 
 
