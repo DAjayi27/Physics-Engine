@@ -9,20 +9,21 @@ experiments or teaching demos.
 
 - **Entity-component design** – Every `Entity` owns a renderable `Shape` and a
   `Physics_Component`, letting you mix rigid bodies, particles, or kinematic
-  actors in the same world. 【F:src/core/entity.h†L16-L54】
+  actors in the same world.
 - **Deterministic physics integration** – `Rigid_Body`, `Particle`, and
   `Kinematic` components expose friction, restitution, and gravity controls so
-  that simulations remain stable across frame rates. 【F:src/physics/rigid_body.h†L11-L47】【F:src/physics/particle.h†L10-L58】
+  that simulations remain stable across frame rates.
 - **Collision system with resolution** – Circle and rectangle shapes can be
   checked with broad-phase AABB tests before dispatching to collision
-  resolution routines. 【F:src/collision/collision.h†L6-L29】【F:src/shapes/circle.h†L8-L34】【F:src/shapes/rectangle.h†L8-L36】
+  resolution routines.
 - **SDL3 rendering pipeline** – `Renderer::render_entity` draws world entities
-  and UI overlays using SDL textures and primitive drawing. 【F:src/rendering/renderer.h†L7-L36】
+  and UI overlays using SDL textures and primitive drawing.
 - **UI actions and overlays** – The `UiManager` manages popup components and
-  queues UI actions triggered during the simulation loop. 【F:src/ui/ui_manager.h†L19-L44】【F:src/ui/components/ui_popup.h†L9-L51】
+  queues UI actions triggered during the simulation loop.
 - **Extensive automated tests** – Component and UI integration tests cover
   vector math, physics updates, collision handling, and world orchestration via
-  GoogleTest. 【F:test/components/vector2d_test.cpp†L1-L49】【F:test/components/collision_test.cpp†L1-L83】【F:test/ui/world_test.cpp†L1-L98】
+  GoogleTest.
+
 
 ## Repository Layout
 
@@ -40,12 +41,12 @@ experiments or teaching demos.
 ## Build Requirements
 
 - A compiler with **C++20** support.
-- **CMake 3.28** or newer. 【F:CMakeLists.txt†L1-L6】
-- **SDL3 development libraries** discoverable via `find_package(SDL3 REQUIRED)`. 【F:CMakeLists.txt†L18-L19】
+- **CMake 3.28** or newer.
+- **SDL3 development libraries** discoverable via `find_package(SDL3 REQUIRED)`.
 - (Optional) `SDL3_image` if you enable the commented texture loading hooks.
 
 GoogleTest is fetched automatically through `FetchContent`, so no system-wide
-installation is required. 【F:CMakeLists.txt†L8-L17】
+installation is required.
 
 ## Building the Project
 
@@ -60,7 +61,7 @@ runners:
 - `Physics_Engine_Component_Tests` for headless unit tests.
 - `Physics_Engine_UI_Tests` for SDL-driven integration checks.
 
-All targets link against SDL3 and are generated in the chosen build directory. 【F:CMakeLists.txt†L21-L114】
+All targets link against SDL3 and are generated in the chosen build directory.
 
 ## Running the Simulation
 
@@ -73,9 +74,8 @@ All targets link against SDL3 and are generated in the chosen build directory. �
    ./build/Physics_Engine
    ```
 
-The main loop (`World::update`) handles SDL events, processes UI actions, runs
-physics, and renders entities each frame. 【F:src/core/world.h†L24-L59】 Use the
-arrow keys to nudge the selected entity around (`handle_input` in `main.cpp`). 【F:src/main.cpp†L41-L55】
+The main loop (`World::update`) handles SDL events, processes UI actions, runs physics, and renders entities each frame. Use the
+arrow keys to nudge the selected entity around (`handle_input` in `main.cpp`).
 
 ## Running Tests
 
@@ -94,17 +94,16 @@ Individual binaries can be run directly if you want to focus on a single suite:
 ```
 
 Both test executables are registered with `gtest_discover_tests`, so `ctest`
-will automatically enumerate the GoogleTest cases. 【F:CMakeLists.txt†L116-L120】
+will automatically enumerate the GoogleTest cases.
 
 ## Extending the Engine
 
-- **Add a new shape** by subclassing `Shape`, implementing `get_type`,
-  `get_bounds`, and `render`, then composing it into an `Entity`. 【F:src/shapes/shape.h†L8-L44】
+- **Add a new shape** by subclassing `Shape`, implementing `get_type`,`get_bounds`, and `render`, then composing it into an `Entity`. 【F:src/shapes/shape.h†L8-L44】
 - **Create a custom physics component** by deriving from
   `Physics_Component`, overriding `update`, and exposing configuration knobs
-  similar to `Rigid_Body`. 【F:src/physics/physics_component.h†L9-L59】【F:src/physics/rigid_body.h†L26-L47】
+  similar to `Rigid_Body`.
 - **Hook UI controls** by creating a `UiComponent` and pushing `UIAction`
-  instances onto the manager queue. 【F:src/ui/components/ui_component.h†L8-L43】【F:src/ui/ui_action.h†L8-L55】
+  instances onto the manager queue.
 
 Because the world stores entities as `std::unique_ptr`, ownership stays clear
 and components can share data through simple pointers or events.
@@ -119,8 +118,8 @@ UI, and the automated test suites.
 
 - If SDL3 fails to initialize, verify that your system meets the runtime
   requirements and that `SDL_GetError()` logs the failure cause inside
-  `World::initializeSdl`. 【F:src/core/world.cpp†L19-L94】
+  `World::initializeSdl`.
 - Missing UI overlays usually indicate the `UiManager::init` routine was not
-  called; the world constructor handles this once SDL surfaces are ready. 【F:src/core/world.cpp†L96-L177】
+  called; the world constructor handles this once SDL surfaces are ready.
 - Physics behaving unexpectedly? Double-check mass, restitution, and gravity
-  flags on each `Physics_Component` before stepping the simulation. 【F:src/physics/physics_component.h†L23-L59】
+  flags on each `Physics_Component` before stepping the simulation.
