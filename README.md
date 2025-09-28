@@ -9,20 +9,21 @@ experiments or teaching demos.
 
 - **Entity-component design** – Every `Entity` owns a renderable `Shape` and a
   `Physics_Component`, letting you mix rigid bodies, particles, or kinematic
-  actors in the same world. 
+  actors in the same world.
 - **Deterministic physics integration** – `Rigid_Body`, `Particle`, and
   `Kinematic` components expose friction, restitution, and gravity controls so
-  that simulations remain stable across frame rates. 
+  that simulations remain stable across frame rates.
 - **Collision system with resolution** – Circle and rectangle shapes can be
   checked with broad-phase AABB tests before dispatching to collision
-  resolution routines. 
+  resolution routines.
 - **SDL3 rendering pipeline** – `Renderer::render_entity` draws world entities
-  and UI overlays using SDL textures and primitive drawing. 
+  and UI overlays using SDL textures and primitive drawing.
 - **UI actions and overlays** – The `UiManager` manages popup components and
-  queues UI actions triggered during the simulation loop. 
+  queues UI actions triggered during the simulation loop.
 - **Extensive automated tests** – Component and UI integration tests cover
   vector math, physics updates, collision handling, and world orchestration via
-  GoogleTest. 
+  GoogleTest.
+
 
 ## Repository Layout
 
@@ -40,12 +41,12 @@ experiments or teaching demos.
 ## Build Requirements
 
 - A compiler with **C++20** support.
-- **CMake 3.28** or newer. 
-- **SDL3 development libraries** discoverable via `find_package(SDL3 REQUIRED)`. 
+- **CMake 3.28** or newer.
+- **SDL3 development libraries** discoverable via `find_package(SDL3 REQUIRED)`.
 - (Optional) `SDL3_image` if you enable the commented texture loading hooks.
 
 GoogleTest is fetched automatically through `FetchContent`, so no system-wide
-installation is required. 
+installation is required.
 
 ## Building the Project
 
@@ -60,7 +61,7 @@ runners:
 - `Physics_Engine_Component_Tests` for headless unit tests.
 - `Physics_Engine_UI_Tests` for SDL-driven integration checks.
 
-All targets link against SDL3 and are generated in the chosen build directory. 
+All targets link against SDL3 and are generated in the chosen build directory.
 
 ## Running the Simulation
 
@@ -73,9 +74,9 @@ All targets link against SDL3 and are generated in the chosen build directory.
    ./build/Physics_Engine
    ```
 
-The main loop (`World::update`) handles SDL events, processes UI actions, runs
-physics, and renders entities each frame. Use the
-arrow keys to nudge the selected entity around (`handle_input` in `main.cpp`). 
+The main loop (`World::update`) handles SDL events, processes UI actions, runs physics, and renders entities each frame. Use the
+arrow keys to nudge the selected entity around (`handle_input` in `main.cpp`).
+
 ## Running Tests
 
 After building, execute the GoogleTest suites from the build directory:
@@ -93,20 +94,25 @@ Individual binaries can be run directly if you want to focus on a single suite:
 ```
 
 Both test executables are registered with `gtest_discover_tests`, so `ctest`
-will automatically enumerate the GoogleTest cases. 【F:CMakeLists.txt†L116-L120】
+will automatically enumerate the GoogleTest cases.
 
 ## Extending the Engine
 
-- **Add a new shape** by subclassing `Shape`, implementing `get_type`,
-  `get_bounds`, and `render`, then composing it into an `Entity`. 
+- **Add a new shape** by subclassing `Shape`, implementing `get_type`,`get_bounds`, and `render`, then composing it into an `Entity`. 【F:src/shapes/shape.h†L8-L44】
 - **Create a custom physics component** by deriving from
   `Physics_Component`, overriding `update`, and exposing configuration knobs
-  similar to `Rigid_Body`. 
+  similar to `Rigid_Body`.
 - **Hook UI controls** by creating a `UiComponent` and pushing `UIAction`
   instances onto the manager queue.
 
 Because the world stores entities as `std::unique_ptr`, ownership stays clear
 and components can share data through simple pointers or events.
+
+## Detailed Documentation
+
+Additional module-by-module guides live in [`docs/`](docs/README.md), covering
+architecture, core systems, physics, collision detection, shapes, rendering,
+UI, and the automated test suites.
 
 ## Troubleshooting
 
