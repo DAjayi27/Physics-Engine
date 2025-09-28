@@ -98,7 +98,7 @@ will automatically enumerate the GoogleTest cases.
 
 ## Extending the Engine
 
-- **Add a new shape** by subclassing `Shape`, implementing `get_type`,`get_bounds`, and `render`, then composing it into an `Entity`. 【F:src/shapes/shape.h†L8-L44】
+- **Add a new shape** by subclassing `Shape`, implementing `get_type`,`get_bounds`, and `render`, then composing it into an `Entity`. 
 - **Create a custom physics component** by deriving from
   `Physics_Component`, overriding `update`, and exposing configuration knobs
   similar to `Rigid_Body`.
